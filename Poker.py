@@ -28,7 +28,7 @@ class game:
         deck = []
         for s in ['D','C','H','S']:
             for v in range(2,15):
-                image = s + str(v) + "jpg"
+                image = s + str(v) + ".jpg"
                 deck.append(cards(s,v, image))
                 shuffle(deck)
         
@@ -104,15 +104,14 @@ class main_screen(tk.Tk):
         tk.Tk.__init__(self)
         global font1                                                    #delete this when all windows made
         font1 = tkFont.Font(family = "Arial", size = 24)
-        self.columnconfigure(0,weight = 1)
-        #self.rowconfigure(0,weight = 1)
+        self.columnconfigure(0,weight = 1)     
         self.columnconfigure(8,weight = 1)
-        #self.rowconfigure(0,weight = 1)
-
-        background = tk.Canvas(self, width = 820, height = 392, bd = 0, highlightthickness = 0, bg = "black")  #This is the top middle image
-        background.grid(row=2,column=2, rowspan = 3, columnspan = 5)
+       
+        self.background = tk.Canvas(self, width = 820, height = 392, bd = 0, highlightthickness = 0, bg = "black")  #This is the top middle image
+        self.background.grid(row=2,column=2, rowspan = 3, columnspan = 5)
+        global table
         table = ImageTk.PhotoImage(Image.open("Poker_table.png"))
-        background.create_image(0,0,anchor="nw", image = table)
+        self.background.create_image(0,0,anchor="nw", image = table)
         self.geometry("800x700")
 
         button_fold = tk.Button(self, text = "Fold", font = font1, height = 3, width = 12, highlightbackground = "tomato")
@@ -124,7 +123,24 @@ class main_screen(tk.Tk):
         button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato")
         button_call.grid(row = 5, column = 4)
 
-        button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato")
+        def confirmBet():
+            amount = int(self.bet1.get())
+            if amount > 0:
+                pot += amount
+            else:
+                betLabel = tk.Label(self, text = "Please enter a legal bet", font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                betLabel.grid(column = 8, row = 5, sticky = "nsew")
+            
+
+        def betSize():
+            self.bet1 = tk.Entry()
+            self.bet1.grid(row = 5, column = 6, sticky = "s")
+            button_confirm = tk.Button(self, text = "confirm", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = confirmBet)
+            button_confirm.grid(row = 5, column = 7)
+            
+            #grid_forget
+
+        button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = betSize)
         button_bet.grid(row = 5, column = 5)
 
         button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato")
@@ -163,23 +179,14 @@ class main_screen(tk.Tk):
         money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
         money2.grid(column = 8, row = 1, sticky = "nsew")
 
-
-        # card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        # card1.grid(row=3,column=0)
-        # global back
-        # back = ImageTk.PhotoImage(Image.open("Red_back.jpg"))
-        # card1.create_image(0,0,anchor="nw", image = back)
-
-        # board1 = ImageTk.PhotoImage(Image.open("Red_back.jpg"))
-        # boardID = self.background.create_image(100,152,image = board1)
-
-        # b1Image =  PhotoImage(file = "button1.png") 
-        # b1ID = self.theCanvas.create_image(300,100,image=b1Image)  # Draw them on the canvas and remember their ID number
-
-        # c1 = Canvas(master, width=50, height = 50)
-        # c1.grid(row=1,column=1)
-        # smiley = PhotoImage(file="smile.png")
-        # c1.create_image(0,0,image=smiley,anchor="nw")
+        pot_label = tk.Label(self, text = str(self.pot), font = font1, fg = "yellow", bg = "black")
+        pot_label.grid(column = 4, row = 2, sticky = "nsew")
+        
+        self.boardID1 = self.background.create_image(200,196,image = back)
+        self.boardID2 = self.background.create_image(305,196,image = back)
+        self.boardID3 = self.background.create_image(410,196,image = back)
+        self.boardID4 = self.background.create_image(515,196,image = back)
+        self.boardID5 = self.background.create_image(620,196,image = back)
 
 
 
@@ -189,7 +196,7 @@ app.configure(bg = "black")
 
 app.mainloop()
 
-
+        
 
 
 
