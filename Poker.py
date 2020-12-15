@@ -37,69 +37,77 @@ class game:
         self.board = [deck[4],deck[5],deck[6],deck[7],deck[8]]
 
 
+
+
 p1 = player(input("Please input your name?"))
 p2 = player(input("Please input your name?"))
 
-
-# class main_screen(tk.Tk):
-#     def __init__(self):
-#         tk.Tk.__init__(self)
-#         global font1
-#         font1 = tkFont.Font(family = "Arial", size = 24)
-#         button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
-#         button1.grid(row = 1, column = 1)  
-        
-
-#         button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
-#         button2.grid(row = 3, column = 1)
-#         self.columnconfigure(0,weight = 1)
-#         self.columnconfigure(2,weight = 1)
-#         self.rowconfigure(0,weight = 1)
-#         self.rowconfigure(4,weight = 1)
-#         self.rowconfigure(2,minsize = 20)
-#         self.columnconfigure(0,minsize = 250)
-#         self.columnconfigure(2,minsize = 250)
-#         self.geometry("800x700")
+newgame = game(0,p1,p2)
 
 
-        # c1 = tk.Canvas(self, width = 258, height = 181, bd = 0, highlightthickness = 0, bg = "tomato")  #This is the top middle image
-        # c1.grid(row=0,column=1)
-        # global poker
-        # poker = ImageTk.PhotoImage(Image.open("Poker_image.png"))
-        # c1.create_image(0,0,anchor="nw", image = poker)
-
-        # c2 = tk.Canvas(self, width = 201, height = 201, bd = 0, highlightthickness = 0, bg = "tomato")  #This is the bottom left image
-        # c2.grid(row=4,column=0)
-        # global ace
-        # ace = ImageTk.PhotoImage(Image.open("Poker_spade.png"))
-        # c2.create_image(0,0,anchor="nw", image = ace)
-
-#         Box = tk.Label(self, text = "Biggest pots won", font = font1, height = 3, width = 20, bg = "tomato") # This will list the largest 
-#         Box.grid(column = 2, row = 0, sticky = "ne")                                                         # amount of money won in a hand
-
-# class difficulty_screen(tk.Tk):
-#      def __init__(self):
-#         tk.Tk.__init__(self)
-#         font1 = tkFont.Font(family = "Arial", size = 24)
-        # button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
-        # button3.grid(row = 1, column = 1)
-
-#         button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
-#         button4.grid(row = 3, column = 1)
-
-        # Box = tk.Label(self, text = "Choose a difficulty", font = font1, height = 3, width = 20, bg = "tomato")
-        # Box.grid(column = 1, row = 0, sticky = "nsew")
-
-#         self.columnconfigure(0,weight = 1)
-#         self.columnconfigure(2,weight = 1)
-#         self.rowconfigure(0,weight = 1)
-#         self.rowconfigure(4,weight = 1)
-#         self.rowconfigure(2,minsize = 20)
-#         self.columnconfigure(0,minsize = 250)
-#         self.columnconfigure(2,minsize = 250)
-#         self.geometry("800x700")
 
 class main_screen(tk.Tk):
+    def __init__(self):
+        tk.Tk.__init__(self)
+        global font1
+        font1 = tkFont.Font(family = "Arial", size = 24)
+        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = showFrame(difficulty_screen))
+        button1.grid(row = 1, column = 1)  
+        #send you to selecting difficulty screen
+
+        button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = showFrame(game_screen))
+        # send you to the main game screen
+        button2.grid(row = 3, column = 1)
+        self.columnconfigure(0,weight = 1)
+        self.columnconfigure(2,weight = 1)
+        self.rowconfigure(0,weight = 1)
+        self.rowconfigure(4,weight = 1)
+        self.rowconfigure(2,minsize = 20)
+        self.columnconfigure(0,minsize = 250)
+        self.columnconfigure(2,minsize = 250)
+        self.geometry("800x700")
+
+
+        c1 = tk.Canvas(self, width = 258, height = 181, bd = 0, highlightthickness = 0, bg = "tomato")  #This is the top middle image
+        c1.grid(row=0,column=1)
+        global poker
+        poker = ImageTk.PhotoImage(Image.open("Poker_image.png"))
+        c1.create_image(0,0,anchor="nw", image = poker)
+
+        c2 = tk.Canvas(self, width = 201, height = 201, bd = 0, highlightthickness = 0, bg = "tomato")  #This is the bottom left image
+        c2.grid(row=4,column=0)
+        global ace
+        ace = ImageTk.PhotoImage(Image.open("Poker_spade.png"))
+        c2.create_image(0,0,anchor="nw", image = ace)
+
+        Box = tk.Label(self, text = "Biggest pots won", font = font1, height = 3, width = 20, bg = "tomato") # This will list the largest 
+        Box.grid(column = 2, row = 0, sticky = "ne")                                                         # amount of money won in a hand
+
+
+class difficulty_screen(tk.Tk):
+     def __init__(self):
+        tk.Tk.__init__(self)
+        font1 = tkFont.Font(family = "Arial", size = 24)
+        button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
+        button3.grid(row = 1, column = 1)
+
+        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
+        button4.grid(row = 3, column = 1)
+
+        Box = tk.Label(self, text = "Choose a difficulty", font = font1, height = 3, width = 20, bg = "tomato")
+        Box.grid(column = 1, row = 0, sticky = "nsew")
+
+        self.columnconfigure(0,weight = 1)
+        self.columnconfigure(2,weight = 1)
+        self.rowconfigure(0,weight = 1)
+        self.rowconfigure(4,weight = 1)
+        self.rowconfigure(2,minsize = 20)
+        self.columnconfigure(0,minsize = 250)
+        self.columnconfigure(2,minsize = 250)
+        self.geometry("800x700")
+
+
+class game_screen(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         global font1                                                    #delete this when all windows made
@@ -108,7 +116,7 @@ class main_screen(tk.Tk):
         self.columnconfigure(8,weight = 1)
        
         self.background = tk.Canvas(self, width = 820, height = 392, bd = 0, highlightthickness = 0, bg = "black")  #This is the top middle image
-        self.background.grid(row=2,column=2, rowspan = 3, columnspan = 5)
+        self.background.grid(row=3,column=2, rowspan = 2, columnspan = 5)
         global table
         table = ImageTk.PhotoImage(Image.open("Poker_table.png"))
         self.background.create_image(0,0,anchor="nw", image = table)
@@ -179,7 +187,7 @@ class main_screen(tk.Tk):
         money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
         money2.grid(column = 8, row = 1, sticky = "nsew")
 
-        pot_label = tk.Label(self, text = str(self.pot), font = font1, fg = "yellow", bg = "black")
+        pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")
         pot_label.grid(column = 4, row = 2, sticky = "nsew")
         
         self.boardID1 = self.background.create_image(200,196,image = back)
@@ -188,6 +196,11 @@ class main_screen(tk.Tk):
         self.boardID4 = self.background.create_image(515,196,image = back)
         self.boardID5 = self.background.create_image(620,196,image = back)
 
+
+
+def showFrame(self, cont):
+    frame = self.frames[cont]
+    frame.tkraise()
 
 
 app = main_screen()
@@ -202,8 +215,8 @@ app.mainloop()
 
 
 
-# newgame = game(0,p1,p2)
-# print(newgame.board)
+
+#print(newgame.board)
 # print(newgame.p1.hand)
 # print(newgame.p2.hand)
 
