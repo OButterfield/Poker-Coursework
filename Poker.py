@@ -39,23 +39,57 @@ class game:
 
 
 
-p1 = player(input("Please input your name?"))
-p2 = player(input("Please input your name?"))
-
+# p1 = player(input("Please input your name?"))
+# p2 = player(input("Please input your name?"))
+p1=player("a")
+p2=player("b")
 newgame = game(0,p1,p2)
 
 
+class App(tk.Tk):
+    def __init__(self, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+        self.geometry("1920x1080+0+0")
+        self.title("Main Menu")
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand = True)
 
-class main_screen(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        self.loggedInUser = ""
+
+        self.frames = {}
+
+        for F in [main_screen, game_screen, difficulty_screen]:
+
+            frame = F(container, self)
+
+            self.frames[F] = frame
+
+            frame.grid(row=0, column=0, sticky="nsew")
+
+        self.show_frame(main_screen)
+
+
+    def show_frame(self, cont):
+        frame = self.frames[cont]
+        frame.tkraise()
+
+
+
+class main_screen(tk.Frame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        tk.Frame.__init__(self,parent)
         global font1
+        self.config(bg="red")
         font1 = tkFont.Font(family = "Arial", size = 24)
-        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = showFrame(difficulty_screen))
+        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(difficulty_screen))
         button1.grid(row = 1, column = 1)  
         #send you to selecting difficulty screen
 
-        button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = showFrame(game_screen))
+        button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
         # send you to the main game screen
         button2.grid(row = 3, column = 1)
         self.columnconfigure(0,weight = 1)
@@ -65,7 +99,7 @@ class main_screen(tk.Tk):
         self.rowconfigure(2,minsize = 20)
         self.columnconfigure(0,minsize = 250)
         self.columnconfigure(2,minsize = 250)
-        self.geometry("800x700")
+
 
 
         c1 = tk.Canvas(self, width = 258, height = 181, bd = 0, highlightthickness = 0, bg = "tomato")  #This is the top middle image
@@ -84,9 +118,11 @@ class main_screen(tk.Tk):
         Box.grid(column = 2, row = 0, sticky = "ne")                                                         # amount of money won in a hand
 
 
-class difficulty_screen(tk.Tk):
-     def __init__(self):
-        tk.Tk.__init__(self)
+class difficulty_screen(tk.Frame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        tk.Frame.__init__(self,parent)
+        self.config(bg="black")
         font1 = tkFont.Font(family = "Arial", size = 24)
         button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
         button3.grid(row = 1, column = 1)
@@ -104,12 +140,12 @@ class difficulty_screen(tk.Tk):
         self.rowconfigure(2,minsize = 20)
         self.columnconfigure(0,minsize = 250)
         self.columnconfigure(2,minsize = 250)
-        self.geometry("800x700")
 
 
-class game_screen(tk.Tk):
-    def __init__(self):
-        tk.Tk.__init__(self)
+class game_screen(tk.Frame):
+    def __init__(self, parent, controller):
+        self.controller = controller
+        tk.Frame.__init__(self,parent)
         global font1                                                    #delete this when all windows made
         font1 = tkFont.Font(family = "Arial", size = 24)
         self.columnconfigure(0,weight = 1)     
@@ -120,7 +156,6 @@ class game_screen(tk.Tk):
         global table
         table = ImageTk.PhotoImage(Image.open("Poker_table.png"))
         self.background.create_image(0,0,anchor="nw", image = table)
-        self.geometry("800x700")
 
         button_fold = tk.Button(self, text = "Fold", font = font1, height = 3, width = 12, highlightbackground = "tomato")
         button_fold.grid(row = 5, column = 2)
@@ -198,15 +233,9 @@ class game_screen(tk.Tk):
 
 
 
-def showFrame(self, cont):
-    frame = self.frames[cont]
-    frame.tkraise()
 
-
-app = main_screen()
-
+app = App()
 app.configure(bg = "black")
-
 app.mainloop()
 
         
