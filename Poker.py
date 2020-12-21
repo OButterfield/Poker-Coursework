@@ -4,6 +4,11 @@ import tkinter as tk
 from tkinter import font as tkfont
 from PIL import Image, ImageTk
 
+
+playerNum = 2    #If two player selected then leave this, else change to one
+difficulty = 1   #if easy selected then leave this, else change to 2 to represent hard
+
+
 class player:
     def __init__(self,name):
         self.hand = []            # in deal function add to this
@@ -49,10 +54,12 @@ newgame = game(0,p1,p2)
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        self.geometry("1920x1080+0+0")
+        self.geometry("1920x1080")
         self.title("Main Menu")
         container = tk.Frame(self)
-        container.pack(side="top", fill="both", expand = True)
+        #container.pack(side="top", fill="both", expand = True)
+        container.grid(row= 0, column = 0)
+
 
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
@@ -83,9 +90,13 @@ class main_screen(tk.Frame):
         self.controller = controller
         tk.Frame.__init__(self,parent)
         global font1
-        self.config(bg="red")
         font1 = tkFont.Font(family = "Arial", size = 24)
-        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(difficulty_screen))
+        self.config(bg="tomato")
+
+        #def numPlayers():      
+            #playerNum = 1
+
+        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(difficulty_screen))#, command = numPlayers)
         button1.grid(row = 1, column = 1)  
         #send you to selecting difficulty screen
 
@@ -122,12 +133,14 @@ class difficulty_screen(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self,parent)
-        self.config(bg="black")
-        font1 = tkFont.Font(family = "Arial", size = 24)
-        button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
+        self.config(bg="tomato")
+        button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
         button3.grid(row = 1, column = 1)
 
-        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue")
+        #def dSelect():
+        #    difficulty = 2      
+
+        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))#, command = dSelect)
         button4.grid(row = 3, column = 1)
 
         Box = tk.Label(self, text = "Choose a difficulty", font = font1, height = 3, width = 20, bg = "tomato")
@@ -146,8 +159,9 @@ class game_screen(tk.Frame):
     def __init__(self, parent, controller):
         self.controller = controller
         tk.Frame.__init__(self,parent)
-        global font1                                                    #delete this when all windows made
-        font1 = tkFont.Font(family = "Arial", size = 24)
+
+        self.config(bg="black")
+
         self.columnconfigure(0,weight = 1)     
         self.columnconfigure(8,weight = 1)
        
@@ -166,24 +180,11 @@ class game_screen(tk.Frame):
         button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato")
         button_call.grid(row = 5, column = 4)
 
-        def confirmBet():
-            amount = int(self.bet1.get())
-            if amount > 0:
-                pot += amount
-            else:
-                betLabel = tk.Label(self, text = "Please enter a legal bet", font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-                betLabel.grid(column = 8, row = 5, sticky = "nsew")
-            
+        # cover_button = tk.button(self, height = 3, width = 12, highlightbackground = "black")
+        # cover_button.grid(row = 5 , column = 6, columnspan = 2)
 
-        def betSize():
-            self.bet1 = tk.Entry()
-            self.bet1.grid(row = 5, column = 6, sticky = "s")
-            button_confirm = tk.Button(self, text = "confirm", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = confirmBet)
-            button_confirm.grid(row = 5, column = 7)
-            
-            #grid_forget
 
-        button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = betSize)
+        button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.betSize)
         button_bet.grid(row = 5, column = 5)
 
         button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato")
@@ -223,7 +224,7 @@ class game_screen(tk.Frame):
         money2.grid(column = 8, row = 1, sticky = "nsew")
 
         pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")
-        pot_label.grid(column = 4, row = 2, sticky = "nsew")
+        pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
         
         self.boardID1 = self.background.create_image(200,196,image = back)
         self.boardID2 = self.background.create_image(305,196,image = back)
@@ -232,10 +233,41 @@ class game_screen(tk.Frame):
         self.boardID5 = self.background.create_image(620,196,image = back)
 
 
+    def confirmBet(self):
+        amount = int(self.bet1.get())
+        if amount > 0:
+            pot += amount
+            #add the cover again
+            #minus from player money
+        else:
+            betLabel = tk.Label(self, text = "Please enter a legal bet", font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+            betLabel.grid(column = 8, row = 5, sticky = "nsew")
+
+        
+    def betSize(self):
+        self.bet1 = tk.Entry()
+        self.bet1.grid(row = 5, column = 6, sticky = "s")
+        button_confirm = tk.Button(self, text = "confirm", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.confirmBet)
+        button_confirm.grid(row = 5, column = 7)
+        
+            #grid_forget
+
+    # def betSize():
+    #     cover_button.grid_forget()
+
+
+        # self.bet1 = tk.Entry()
+        # self.bet1.grid(row = 5, column = 6, sticky = "s")
+        # button_confirm = tk.Button(self, text = "confirm", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = confirmBet)
+        # button_confirm.grid(row = 5, column = 7)
+
+        
+
+
 
 
 app = App()
-app.configure(bg = "black")
+
 app.mainloop()
 
         
