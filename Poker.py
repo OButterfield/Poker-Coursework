@@ -54,7 +54,7 @@ newgame = game(0,p1,p2)
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        self.geometry("1920x1080+0+0")
+        self.geometry("1900x1000+0+0")
         self.title("Main Menu")
 
         self.grid_rowconfigure(0, weight=1)
@@ -86,7 +86,6 @@ class main_screen(tk.Frame):
 
         #def numPlayers():      
             #playerNum = 1
-
         button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(difficulty_screen))#, command = numPlayers)
         button1.grid(row = 1, column = 1)  
         #send you to selecting difficulty screen
@@ -99,8 +98,8 @@ class main_screen(tk.Frame):
         self.rowconfigure(0,weight = 1)
         self.rowconfigure(4,weight = 1)
         self.rowconfigure(2,minsize = 20)
-        self.columnconfigure(0,minsize = 250)
-        self.columnconfigure(2,minsize = 250)
+        # self.columnconfigure(0,minsize = 250)
+        # self.columnconfigure(2,minsize = 250)
 
 
 
@@ -246,8 +245,6 @@ class game_screen(tk.Frame):
         self.bet1.delete(0,"end") # clear box
         self.bet1.focus_set() # move cursor to the box
 
-        
-            #grid_forget
 
     # def betSize():
     #     cover_button.grid_forget()
