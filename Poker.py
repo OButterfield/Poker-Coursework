@@ -54,41 +54,32 @@ newgame = game(0,p1,p2)
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
-        self.geometry("1920x1080")
+        self.geometry("1920x1080+0+0")
         self.title("Main Menu")
-        container = tk.Frame(self)
-        #container.pack(side="top", fill="both", expand = True)
-        container.grid(row= 0, column = 0)
 
-
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
         self.loggedInUser = ""
-
         self.frames = {}
 
         for F in [main_screen, game_screen, difficulty_screen]:
-
-            frame = F(container, self)
-
+            frame = F(self)
             self.frames[F] = frame
-
-            frame.grid(row=0, column=0, sticky="nsew")
 
         self.show_frame(main_screen)
 
-
     def show_frame(self, cont):
+        for frame in self.frames:
+            self.frames[frame].grid_forget()
         frame = self.frames[cont]
-        frame.tkraise()
-
+        frame.grid(row=0, column=0, sticky="nsew")
 
 
 class main_screen(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, controller):
         self.controller = controller
-        tk.Frame.__init__(self,parent)
+        tk.Frame.__init__(self,controller)
         global font1
         font1 = tkFont.Font(family = "Arial", size = 24)
         self.config(bg="tomato")
@@ -130,9 +121,9 @@ class main_screen(tk.Frame):
 
 
 class difficulty_screen(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, controller):
         self.controller = controller
-        tk.Frame.__init__(self,parent)
+        tk.Frame.__init__(self,controller)
         self.config(bg="tomato")
         button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
         button3.grid(row = 1, column = 1)
@@ -156,10 +147,10 @@ class difficulty_screen(tk.Frame):
 
 
 class game_screen(tk.Frame):
-    def __init__(self, parent, controller):
+    def __init__(self, controller):
         self.controller = controller
-        tk.Frame.__init__(self,parent)
-
+        tk.Frame.__init__(self,controller)
+        betfont =  tkFont.Font(family = "Arial", size = 24)
         self.config(bg="black")
 
         self.columnconfigure(0,weight = 1)     
@@ -185,7 +176,10 @@ class game_screen(tk.Frame):
 
 
         button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.betSize)
-        button_bet.grid(row = 5, column = 5)
+        button_bet.grid(row = 5, column = 5, columnspan=2)
+        self.bet1 = tk.Entry(self,width=5, font=betfont)
+        self.button_confirm = tk.Button(self, text = "confirm", font = font1, highlightbackground = "tomato", command = self.confirmBet)
+        #don't put them on the grid yet
 
         button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato")
         button_view1.grid(row = 4, column = 0)
@@ -234,6 +228,8 @@ class game_screen(tk.Frame):
 
 
     def confirmBet(self):
+        self.bet1.grid_forget()
+        self.button_confirm.grid_forget() # hide the buttons
         amount = int(self.bet1.get())
         if amount > 0:
             pot += amount
@@ -245,10 +241,11 @@ class game_screen(tk.Frame):
 
         
     def betSize(self):
-        self.bet1 = tk.Entry()
-        self.bet1.grid(row = 5, column = 6, sticky = "s")
-        button_confirm = tk.Button(self, text = "confirm", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.confirmBet)
-        button_confirm.grid(row = 5, column = 7)
+        self.bet1.grid(row = 6, column = 5) # put the button and bet box on the grid
+        self.button_confirm.grid(row = 6, column = 6)
+        self.bet1.delete(0,"end") # clear box
+        self.bet1.focus_set() # move cursor to the box
+
         
             #grid_forget
 
