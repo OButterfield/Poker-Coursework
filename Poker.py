@@ -3,6 +3,7 @@ import tkinter.font as tkFont
 import tkinter as tk
 from tkinter import font as tkfont
 from PIL import Image, ImageTk
+import time
 
 
 playerNum = 2    #If two player selected then leave this, else change to one
@@ -33,21 +34,20 @@ class game:
         deck = []
         for s in ['D','C','H','S']:
             for v in range(2,15):
-                image = s + str(v) + ".jpg"
+                image = str(v) + s + ".jpg"
                 deck.append(cards(s,v, image))
                 shuffle(deck)
         
-        self.p1.hand = [deck[0],deck[2]]
-        self.p2.hand = [deck[1],deck[3]]
+        self.p1.hand = [deck[0],deck[1]]
+        self.p2.hand = [deck[2],deck[3]]
         self.board = [deck[4],deck[5],deck[6],deck[7],deck[8]]
 
 
 
-
-# p1 = player(input("Please input your name?"))
-# p2 = player(input("Please input your name?"))
-p1=player("a")
-p2=player("b")
+p1 = player(input("Please input your name?"))
+p2 = player(input("Please input your name?"))
+# p1=player("a")
+# p2=player("b")
 newgame = game(0,p1,p2)
 
 
@@ -83,34 +83,43 @@ class main_screen(tk.Frame):
         global font1
         font1 = tkFont.Font(family = "Arial", size = 24)
         self.config(bg="tomato")
+        
 
-        #def numPlayers():      
-            #playerNum = 1
-        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(difficulty_screen))#, command = numPlayers)
-        button1.grid(row = 1, column = 1)  
+        def numPlayers():      
+            playerNum = 1
+
+        scores = open("scores.txt", "r")
+        
+        txt = ""
+        for line in scores:
+            txt += line
+
+        scores.close()
+
+        potWinners = tk.Label(self, text = txt, font = font1, fg = "black", height = 3, width = 20, bg = "tomato")
+        potWinners.grid(column = 2, row = 1, sticky = "ne")
+
+        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: [self.controller.show_frame(difficulty_screen), numPlayers])
+        button1.grid(row = 2, column = 1)  
         #send you to selecting difficulty screen
 
         button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
         # send you to the main game screen
-        button2.grid(row = 3, column = 1)
+        button2.grid(row = 4, column = 1)
         self.columnconfigure(0,weight = 1)
         self.columnconfigure(2,weight = 1)
         self.rowconfigure(0,weight = 1)
-        self.rowconfigure(4,weight = 1)
-        self.rowconfigure(2,minsize = 20)
-        # self.columnconfigure(0,minsize = 250)
-        # self.columnconfigure(2,minsize = 250)
-
-
+        self.rowconfigure(5,weight = 1)
+        self.rowconfigure(3,minsize = 20)
 
         c1 = tk.Canvas(self, width = 258, height = 181, bd = 0, highlightthickness = 0, bg = "tomato")  #This is the top middle image
-        c1.grid(row=0,column=1)
+        c1.grid(row=0,column=1, rowspan = 2, sticky = "n")
         global poker
         poker = ImageTk.PhotoImage(Image.open("Poker_image.png"))
         c1.create_image(0,0,anchor="nw", image = poker)
 
         c2 = tk.Canvas(self, width = 201, height = 201, bd = 0, highlightthickness = 0, bg = "tomato")  #This is the bottom left image
-        c2.grid(row=4,column=0)
+        c2.grid(row=5,column=0)
         global ace
         ace = ImageTk.PhotoImage(Image.open("Poker_spade.png"))
         c2.create_image(0,0,anchor="nw", image = ace)
@@ -127,10 +136,7 @@ class difficulty_screen(tk.Frame):
         button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
         button3.grid(row = 1, column = 1)
 
-        #def dSelect():
-        #    difficulty = 2      
-
-        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))#, command = dSelect)
+        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: [self.controller.show_frame(game_screen) , self.dSelect])
         button4.grid(row = 3, column = 1)
 
         Box = tk.Label(self, text = "Choose a difficulty", font = font1, height = 3, width = 20, bg = "tomato")
@@ -143,6 +149,9 @@ class difficulty_screen(tk.Frame):
         self.rowconfigure(2,minsize = 20)
         self.columnconfigure(0,minsize = 250)
         self.columnconfigure(2,minsize = 250)
+
+    def dSelect():
+        difficulty = 2    #To use later when running the main game
 
 
 class game_screen(tk.Frame):
@@ -176,14 +185,14 @@ class game_screen(tk.Frame):
 
         button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.betSize)
         button_bet.grid(row = 5, column = 5, columnspan=2)
-        self.bet1 = tk.Entry(self,width=5, font=betfont)
+        self.bet1 = tk.Entry(self,width=5, font=font1)
         self.button_confirm = tk.Button(self, text = "confirm", font = font1, highlightbackground = "tomato", command = self.confirmBet)
         #don't put them on the grid yet
 
-        button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato")
+        button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp1)
         button_view1.grid(row = 4, column = 0)
 
-        button_view2 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato")
+        button_view2 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp2)
         button_view2.grid(row = 4, column = 8)
 
         card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
@@ -245,6 +254,57 @@ class game_screen(tk.Frame):
         self.bet1.delete(0,"end") # clear box
         self.bet1.focus_set() # move cursor to the box
 
+    def revealp1(self):
+        p1card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        p1card1.grid(row=3,column=0)
+        global p1cardimage1
+        p1cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[0].image))
+        p1card1.create_image(0,0,anchor="nw", image = p1cardimage1)
+
+        p1card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        p1card2.grid(row=3,column=1)
+        global p1cardimage2
+        p1cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[1].image))
+        p1card2.create_image(0,0,anchor="nw", image = p1cardimage2)
+
+        app.update()
+
+        time.sleep(1.5)
+
+        card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        card1.grid(row=3,column=0)
+        card1.create_image(0,0,anchor="nw", image = back) 
+
+        card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        card2.grid(row=3,column=1)
+        card2.create_image(0,0,anchor="nw", image = back)   
+
+    def revealp2(self):
+        p2card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        p2card1.grid(row=3,column=7)
+        global p2cardimage1
+        p2cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[0].image))
+        p2card1.create_image(0,0,anchor="nw", image = p2cardimage1)
+
+        p2card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        p2card2.grid(row=3,column=8)
+        global p2cardimage2
+        p2cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[1].image))
+        p2card2.create_image(0,0,anchor="nw", image = p2cardimage2)
+
+        app.update()
+
+        time.sleep(1.5)
+
+        card3 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        card3.grid(row=3,column=7)
+        card3.create_image(0,0,anchor="nw", image = back) 
+
+        card4 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
+        card4.grid(row=3,column=8)
+        card4.create_image(0,0,anchor="nw", image = back)   
+
+
 
     # def betSize():
     #     cover_button.grid_forget()
@@ -255,20 +315,10 @@ class game_screen(tk.Frame):
         # button_confirm = tk.Button(self, text = "confirm", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = confirmBet)
         # button_confirm.grid(row = 5, column = 7)
 
-        
-
-
-
 
 app = App()
 
 app.mainloop()
-
-        
-
-
-
-
 
 
 #print(newgame.board)
