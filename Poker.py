@@ -44,10 +44,10 @@ class game:
 
 
 
-p1 = player(input("Please input your name?"))
-p2 = player(input("Please input your name?"))
-# p1=player("a")
-# p2=player("b")
+# p1 = player(input("Please input your name?"))
+# p2 = player(input("Please input your name?"))
+p1=player("Bob")
+p2=player("Alice")
 newgame = game(0,p1,p2)
 
 
@@ -170,67 +170,62 @@ class game_screen(tk.Frame):
         table = ImageTk.PhotoImage(Image.open("Poker_table.png"))
         self.background.create_image(0,0,anchor="nw", image = table)
 
-        button_fold = tk.Button(self, text = "Fold", font = font1, height = 3, width = 12, highlightbackground = "tomato")
-        button_fold.grid(row = 5, column = 2)
+        button_fold = tk.Button(self, text = "Fold", font = font1, height = 3, width = 12, highlightbackground = "tomato") 
+        button_fold.grid(row = 5, column = 2)  #fold button
 
         button_check = tk.Button(self, text = "Check", font = font1, height = 3, width = 12, highlightbackground = "tomato")
-        button_check.grid(row = 5, column = 3)
+        button_check.grid(row = 5, column = 3)  #check button
 
         button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato")
-        button_call.grid(row = 5, column = 4)
-
-        # cover_button = tk.button(self, height = 3, width = 12, highlightbackground = "black")
-        # cover_button.grid(row = 5 , column = 6, columnspan = 2)
-
+        button_call.grid(row = 5, column = 4)  #call button
 
         button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.betSize)
-        button_bet.grid(row = 5, column = 5, columnspan=2)
+        button_bet.grid(row = 5, column = 5)            #bet button
         self.bet1 = tk.Entry(self,width=5, font=font1)
         self.button_confirm = tk.Button(self, text = "confirm", font = font1, highlightbackground = "tomato", command = self.confirmBet)
-        #don't put them on the grid yet
 
         button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp1)
-        button_view1.grid(row = 4, column = 0)
+        button_view1.grid(row = 4, column = 0)      #view cards button on the left
 
         button_view2 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp2)
-        button_view2.grid(row = 4, column = 8)
+        button_view2.grid(row = 4, column = 8)      #view carda button on the right
 
         card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         card1.grid(row=3,column=0)
-        global back
+        global back                                                 #left players first card
         back = ImageTk.PhotoImage(Image.open("Red_back.jpg"))
         card1.create_image(0,0,anchor="nw", image = back)
 
         card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        card2.grid(row=3,column=1)
+        card2.grid(row=3,column=1)                                 #left players second card
         card2.create_image(0,0,anchor="nw", image = back)
 
         card3 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        card3.grid(row=3,column=7)
+        card3.grid(row=3,column=7)                                #right players first card
         card3.create_image(0,0,anchor="nw", image = back)
 
         card4 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        card4.grid(row=3,column=8)
+        card4.grid(row=3,column=8)                                #right players second card
         card4.create_image(0,0,anchor="nw", image = back)
 
         name1 = tk.Label(self, text = p1.name, font = font1, fg = "yellow", height = 3, width = 20, bg = "black")
-        name1.grid(column = 0, row = 0, sticky = "nsew")
+        name1.grid(column = 0, row = 0, sticky = "nsew")          #left players name
 
         name2 = tk.Label(self, text = p2.name, font = font1, fg = "yellow", height = 3, width = 20, bg = "black")
-        name2.grid(column = 8, row = 0, sticky = "nsew")
+        name2.grid(column = 8, row = 0, sticky = "nsew")          #right players name
 
         money1 = tk.Label(self, text = p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-        money1.grid(column = 0, row = 1, sticky = "nsew")
+        money1.grid(column = 0, row = 1, sticky = "nsew")         #left players money
 
         money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-        money2.grid(column = 8, row = 1, sticky = "nsew")
+        money2.grid(column = 8, row = 1, sticky = "nsew")         #right players money
 
         pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")
-        pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
+        pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")    #amount of money currently in the pot
         
         self.boardID1 = self.background.create_image(200,196,image = back)
         self.boardID2 = self.background.create_image(305,196,image = back)
-        self.boardID3 = self.background.create_image(410,196,image = back)
+        self.boardID3 = self.background.create_image(410,196,image = back)      #cards on the board
         self.boardID4 = self.background.create_image(515,196,image = back)
         self.boardID5 = self.background.create_image(620,196,image = back)
 
@@ -238,19 +233,20 @@ class game_screen(tk.Frame):
     def confirmBet(self):
         self.bet1.grid_forget()
         self.button_confirm.grid_forget() # hide the buttons
+        '''
         amount = int(self.bet1.get())
         if amount > 0:
             pot += amount
-            #add the cover again
             #minus from player money
         else:
             betLabel = tk.Label(self, text = "Please enter a legal bet", font = font1, fg = "blue", height = 3, width = 20, bg = "black")
             betLabel.grid(column = 8, row = 5, sticky = "nsew")
-
+        '''
         
     def betSize(self):
         self.bet1.grid(row = 6, column = 5) # put the button and bet box on the grid
-        self.button_confirm.grid(row = 6, column = 6)
+        self.button_confirm.grid(row = 8, column = 5)
+        self.rowconfigure(7,minsize = 5)
         self.bet1.delete(0,"end") # clear box
         self.bet1.focus_set() # move cursor to the box
 
@@ -258,7 +254,7 @@ class game_screen(tk.Frame):
         p1card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         p1card1.grid(row=3,column=0)
         global p1cardimage1
-        p1cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[0].image))
+        p1cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[0].image))                                 #show right players cards
         p1card1.create_image(0,0,anchor="nw", image = p1cardimage1)
 
         p1card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
@@ -283,7 +279,7 @@ class game_screen(tk.Frame):
         p2card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         p2card1.grid(row=3,column=7)
         global p2cardimage1
-        p2cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[0].image))
+        p2cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[0].image))                                 #show right players cards
         p2card1.create_image(0,0,anchor="nw", image = p2cardimage1)
 
         p2card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
