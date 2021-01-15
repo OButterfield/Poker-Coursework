@@ -176,7 +176,7 @@ class game_screen(tk.Frame):
         button_check = tk.Button(self, text = "Check", font = font1, height = 3, width = 12, highlightbackground = "tomato")
         button_check.grid(row = 5, column = 3)  #check button
 
-        button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato")
+        button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.flop) #to test
         button_call.grid(row = 5, column = 4)  #call button
 
         button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.betSize)
@@ -300,6 +300,29 @@ class game_screen(tk.Frame):
         card4.grid(row=3,column=8)
         card4.create_image(0,0,anchor="nw", image = back)   
 
+    def flop(self):
+        global board1                                               
+        board1 = ImageTk.PhotoImage(Image.open(newgame.board[0].image))
+        self.boardID1 = self.background.create_image(200,196,image = board1)
+
+        global board2                                               
+        board2 = ImageTk.PhotoImage(Image.open(newgame.board[1].image))
+        self.boardID2 = self.background.create_image(305,196,image = board2)
+
+        global board3                                           
+        board3 = ImageTk.PhotoImage(Image.open(newgame.board[2].image))
+        self.boardID3 = self.background.create_image(410,196,image = board3)
+
+
+    def turn(self):
+        global board4                                               
+        board4 = ImageTk.PhotoImage(Image.open(newgame.board[3].image))
+        self.boardID4 = self.background.create_image(515,196,image = board4)
+
+    def river(self):
+        global board5                                               
+        board5 = ImageTk.PhotoImage(Image.open(newgame.board[4].image))
+        self.boardID5 = self.background.create_image(620,196,image = board5)
 
 
     # def betSize():
