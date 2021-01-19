@@ -1,7 +1,7 @@
 from random import *
-import tkinter.font as tkFont
+#import tkinter.font as tkFont
 import tkinter as tk
-from tkinter import font as tkfont
+from tkinter import font as tkFont
 from PIL import Image, ImageTk
 import time
 
@@ -62,6 +62,7 @@ class App(tk.Tk):
         self.grid_columnconfigure(0, weight=1)
 
         self.loggedInUser = ""
+        self.playerNum = None
         self.frames = {}
 
         for F in [main_screen, game_screen, difficulty_screen]:
@@ -96,11 +97,11 @@ class main_screen(tk.Frame):
         potWinners = tk.Label(self, text = txt, font = font1, fg = "black", height = 3, width = 20, bg = "tomato")
         potWinners.grid(column = 2, row = 1, sticky = "ne")
 
-        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.compound)
+        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.onePlayerStart)
         button1.grid(row = 2, column = 1)                                       #numPlayers not being run
         #send you to selecting difficulty screen
 
-        button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
+        button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command =  self.twoPlayerStart)
         # send you to the main game screen
         button2.grid(row = 4, column = 1)
         self.columnconfigure(0,weight = 1)
@@ -124,13 +125,15 @@ class main_screen(tk.Frame):
         Box = tk.Label(self, text = "Biggest pots won", font = font1, height = 3, width = 20, bg = "tomato") # This will list the largest 
         Box.grid(column = 2, row = 0, sticky = "ne")                                                         # amount of money won in a hand
 
-    def compound():
-        playerNum = 1
-        controller.show_frame(difficulty_screen)
+    def onePlayerStart(self):
+        self.controller.playerNum = 1 
+        self.controller.show_frame(difficulty_screen)
 
-    # def numPlayers():
-    #     playerNum = 1   #not being run
-        
+    
+    def twoPlayerStart(self):
+        self.controller.playerNum = 2 
+        self.controller.show_frame(difficulty_screen)
+
 
 class difficulty_screen(tk.Frame):
     def __init__(self, controller):
