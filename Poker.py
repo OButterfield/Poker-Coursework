@@ -8,6 +8,7 @@ import time
 
 playerNum = 2    #If two player selected then leave this, else change to one
 difficulty = 1   #if easy selected then leave this, else change to 2 to represent hard
+betStage = 0     # 0 is pre-flop, 1 means the flop has been done ... 
 
 
 class player:
@@ -83,10 +84,6 @@ class main_screen(tk.Frame):
         global font1
         font1 = tkFont.Font(family = "Arial", size = 24)
         self.config(bg="tomato")
-        
-
-        def numPlayers():      
-            playerNum = 1
 
         scores = open("scores.txt", "r")
         
@@ -99,8 +96,8 @@ class main_screen(tk.Frame):
         potWinners = tk.Label(self, text = txt, font = font1, fg = "black", height = 3, width = 20, bg = "tomato")
         potWinners.grid(column = 2, row = 1, sticky = "ne")
 
-        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: [self.controller.show_frame(difficulty_screen), numPlayers])
-        button1.grid(row = 2, column = 1)  
+        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.compound)
+        button1.grid(row = 2, column = 1)                                       #numPlayers not being run
         #send you to selecting difficulty screen
 
         button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
@@ -127,6 +124,13 @@ class main_screen(tk.Frame):
         Box = tk.Label(self, text = "Biggest pots won", font = font1, height = 3, width = 20, bg = "tomato") # This will list the largest 
         Box.grid(column = 2, row = 0, sticky = "ne")                                                         # amount of money won in a hand
 
+    def compound():
+        playerNum = 1
+        controller.show_frame(difficulty_screen)
+
+    # def numPlayers():
+    #     playerNum = 1   #not being run
+        
 
 class difficulty_screen(tk.Frame):
     def __init__(self, controller):
@@ -136,8 +140,8 @@ class difficulty_screen(tk.Frame):
         button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
         button3.grid(row = 1, column = 1)
 
-        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: [self.controller.show_frame(game_screen) , self.dSelect])
-        button4.grid(row = 3, column = 1)
+        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: [self.controller.show_frame(game_screen) , self.dSelect]) 
+        button4.grid(row = 3, column = 1)                                                                                    #dSelect not being run
 
         Box = tk.Label(self, text = "Choose a difficulty", font = font1, height = 3, width = 20, bg = "tomato")
         Box.grid(column = 1, row = 0, sticky = "nsew")
@@ -176,7 +180,7 @@ class game_screen(tk.Frame):
         button_check = tk.Button(self, text = "Check", font = font1, height = 3, width = 12, highlightbackground = "tomato")
         button_check.grid(row = 5, column = 3)  #check button
 
-        button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.flop) #to test
+        button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato") #to test
         button_call.grid(row = 5, column = 4)  #call button
 
         button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.betSize)
@@ -187,8 +191,11 @@ class game_screen(tk.Frame):
         button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp1)
         button_view1.grid(row = 4, column = 0)      #view cards button on the left
 
-        button_view2 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp2)
-        button_view2.grid(row = 4, column = 8)      #view carda button on the right
+        self.button_view2 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp2)
+        self.button_view2.grid(row = 4, column = 8)      #view cards button on the right
+
+        if playerNum == 1:
+            self.button_view2.grid_forget()
 
         card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         card1.grid(row=3,column=0)
@@ -251,8 +258,8 @@ class game_screen(tk.Frame):
         self.bet1.focus_set() # move cursor to the box
 
     def revealp1(self):
-        p1card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        p1card1.grid(row=3,column=0)
+        p1card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  # this layers multiple canvas on top of each other
+        p1card1.grid(row=3,column=0)                                                                        #needs to be fixed
         global p1cardimage1
         p1cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[0].image))                                 #show right players cards
         p1card1.create_image(0,0,anchor="nw", image = p1cardimage1)
@@ -313,16 +320,22 @@ class game_screen(tk.Frame):
         board3 = ImageTk.PhotoImage(Image.open(newgame.board[2].image))
         self.boardID3 = self.background.create_image(410,196,image = board3)
 
+        betStage = 1
+
 
     def turn(self):
         global board4                                               
         board4 = ImageTk.PhotoImage(Image.open(newgame.board[3].image))
         self.boardID4 = self.background.create_image(515,196,image = board4)
 
+        betStage = 2
+
     def river(self):
         global board5                                               
         board5 = ImageTk.PhotoImage(Image.open(newgame.board[4].image))
         self.boardID5 = self.background.create_image(620,196,image = board5)
+
+        betStage = 3
 
 
     # def betSize():
