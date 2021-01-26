@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 import time
 
 
-playerNum = 2    #If two player selected then leave this, else change to one
+
 difficulty = 1   #if easy selected then leave this, else change to 2 to represent hard
 betStage = 0     # 0 is pre-flop, 1 means the flop has been done ... 
 
@@ -62,6 +62,7 @@ class App(tk.Tk):
         self.grid_columnconfigure(0, weight=1)
 
         self.loggedInUser = ""
+        self.playerNum = None
         self.frames = {}
 
         for F in [main_screen, game_screen, difficulty_screen]:
@@ -96,11 +97,11 @@ class main_screen(tk.Frame):
         potWinners = tk.Label(self, text = txt, font = font1, fg = "black", height = 3, width = 20, bg = "tomato")
         potWinners.grid(column = 2, row = 1, sticky = "ne")
 
-        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.compound)
+        button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.onePlayerStart)
         button1.grid(row = 2, column = 1)                                       #numPlayers not being run
         #send you to selecting difficulty screen
 
-        button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
+        button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.twoPlayerStart)
         # send you to the main game screen
         button2.grid(row = 4, column = 1)
         self.columnconfigure(0,weight = 1)
@@ -124,13 +125,15 @@ class main_screen(tk.Frame):
         Box = tk.Label(self, text = "Biggest pots won", font = font1, height = 3, width = 20, bg = "tomato") # This will list the largest 
         Box.grid(column = 2, row = 0, sticky = "ne")                                                         # amount of money won in a hand
 
-    def compound():
-        playerNum = 1
-        controller.show_frame(difficulty_screen)
+    def onePlayerStart(self):
+        self.controller.playerNum = 1 
+        self.controller.show_frame(difficulty_screen)
 
-    # def numPlayers():
-    #     playerNum = 1   #not being run
-        
+    
+    def twoPlayerStart(self):
+        self.controller.playerNum = 2 
+        self.controller.show_frame(game_screen)
+
 
 class difficulty_screen(tk.Frame):
     def __init__(self, controller):
@@ -191,11 +194,13 @@ class game_screen(tk.Frame):
         button_view1 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp1)
         button_view1.grid(row = 4, column = 0)      #view cards button on the left
 
-        self.button_view2 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp2)
-        self.button_view2.grid(row = 4, column = 8)      #view cards button on the right
+        if self.controller.playerNum == 1:
+            pass
+        else:
+            self.button_view2 = tk.Button(self, text = "View Cards", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.revealp2)
+            self.button_view2.grid(row = 4, column = 8)      #view cards button on the right
 
-        if playerNum == 1:
-            self.button_view2.grid_forget()
+
 
         card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         card1.grid(row=3,column=0)
