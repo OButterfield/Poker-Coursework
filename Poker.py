@@ -76,6 +76,10 @@ class App(tk.Tk):
             self.frames[frame].grid_forget()
         frame = self.frames[cont]
         frame.grid(row=0, column=0, sticky="nsew")
+        try:
+            frame.loadup()
+        except AttributeError:
+            pass
 
 
 class main_screen(tk.Frame):
@@ -163,6 +167,8 @@ class difficulty_screen(tk.Frame):
 
 class game_screen(tk.Frame):
     def __init__(self, controller):
+        # This is run when the screen is created,
+        # which is at the very start of runtime, before they have logged in
         self.controller = controller
         tk.Frame.__init__(self,controller)
         betfont =  tkFont.Font(family = "Arial", size = 24)
@@ -241,6 +247,10 @@ class game_screen(tk.Frame):
         self.boardID4 = self.background.create_image(515,196,image = back)
         self.boardID5 = self.background.create_image(620,196,image = back)
 
+    def loadup(self):
+        # This is run when the screen is displayed, not when it's created
+        if self.controller.playerNum == 1:
+            self.button_view2.grid_forget()
 
     def confirmBet(self):
         self.bet1.grid_forget()
