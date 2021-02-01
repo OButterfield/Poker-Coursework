@@ -7,10 +7,6 @@ import time
 
 
 
-difficulty = 1   #if easy selected then leave this, else change to 2 to represent hard
-betStage = 0     # 0 is pre-flop, 1 means the flop has been done ... 
-
-
 class player:
     def __init__(self,name):
         self.hand = []            # in deal function add to this
@@ -62,7 +58,13 @@ class App(tk.Tk):
         self.grid_columnconfigure(0, weight=1)
 
         self.loggedInUser = ""
+
         self.playerNum = None
+        self.difficulty = 1     #easy   #if easy selected then leave this, else change to 2 to represent hard
+        self.betStage = 0     # 0 is pre-flop, 1 means the flop has been done ... 
+        self.playerGo = None
+        self.handNum = 1
+
         self.frames = {}
 
         for F in [main_screen, game_screen, difficulty_screen]:
@@ -102,7 +104,7 @@ class main_screen(tk.Frame):
         potWinners.grid(column = 2, row = 1, sticky = "ne")
 
         button1 = tk.Button(self, text = "One Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.onePlayerStart)
-        button1.grid(row = 2, column = 1)                                       #numPlayers not being run
+        button1.grid(row = 2, column = 1)                                       
         #send you to selecting difficulty screen
 
         button2 = tk.Button(self, text = "Two Player", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.twoPlayerStart)
@@ -147,7 +149,8 @@ class difficulty_screen(tk.Frame):
         button3 = tk.Button(self, text = "Easy", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: self.controller.show_frame(game_screen))
         button3.grid(row = 1, column = 1)
 
-        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = lambda: [self.controller.show_frame(game_screen) , self.dSelect]) 
+        button4 = tk.Button(self, text = "Hard", font = font1, height = 3, width = 12, highlightbackground = "cornflower blue", command = self.hardBot)
+        # lambda: [self.controller.show_frame(game_screen) , self.dSelect]) 
         button4.grid(row = 3, column = 1)                                                                                    #dSelect not being run
 
         Box = tk.Label(self, text = "Choose a difficulty", font = font1, height = 3, width = 20, bg = "tomato")
@@ -161,8 +164,9 @@ class difficulty_screen(tk.Frame):
         self.columnconfigure(0,minsize = 250)
         self.columnconfigure(2,minsize = 250)
 
-    def dSelect():
-        difficulty = 2    #To use later when running the main game
+    def hardBot(self):
+        self.controller.difficulty = 2    #To use later when running the main game  
+        self.controller.show_frame(game_screen)
 
 
 class game_screen(tk.Frame):
@@ -189,7 +193,7 @@ class game_screen(tk.Frame):
         button_check = tk.Button(self, text = "Check", font = font1, height = 3, width = 12, highlightbackground = "tomato")
         button_check.grid(row = 5, column = 3)  #check button
 
-        button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato") #to test
+        button_call = tk.Button(self, text = "Call", font = font1, height = 3, width = 12, highlightbackground = "tomato") 
         button_call.grid(row = 5, column = 4)  #call button
 
         button_bet = tk.Button(self, text = "Bet", font = font1, height = 3, width = 12, highlightbackground = "tomato", command = self.betSize)
