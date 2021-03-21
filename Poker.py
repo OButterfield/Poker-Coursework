@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import font as tkfont
 from PIL import Image, ImageTk
 import time
-
+import itertools
 
 
 class player:
@@ -59,12 +59,14 @@ class App(tk.Tk):
 
         self.loggedInUser = ""
 
+
+
         self.playerNum = None
         self.difficulty = 1     #easy   #if easy selected then leave this, else change to 2 to represent hard
         self.betStage = 0     # 0 is pre-flop, 1 means the flop has been done ... 
         self.playerGo = 1
         self.handNum = 1
-        self.maxBet = min(p1.money , p2.money)
+        self.maxBet = min(newgame.p1.money , newgame.p2.money)
         self.amount = None              #current bet
         self.previousBet = 0
 
@@ -217,43 +219,42 @@ class game_screen(tk.Frame):
 
 
         self.card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        self.card1.grid(row=3,column=0)
-        global back                                                 #left players first card
-        back = ImageTk.PhotoImage(Image.open("Red_back.jpg"))
-        self.card1.create_image(0,0,anchor="nw", image = back)
+        self.card1.grid(row=3,column=0)                                  #left players first card
+        self.back = ImageTk.PhotoImage(Image.open("Red_back.jpg")) 
+        self.card1.create_image(0,0,anchor="nw", image = self.back)
 
         self.card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         self.card2.grid(row=3,column=1)                                 #left players second card
-        self.card2.create_image(0,0,anchor="nw", image = back)
+        self.card2.create_image(0,0,anchor="nw", image = self.back)
 
         self.card3 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         self.card3.grid(row=3,column=7)                                #right players first card
-        self.card3.create_image(0,0,anchor="nw", image = back)
+        self.card3.create_image(0,0,anchor="nw", image = self.back)
 
         self.card4 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
         self.card4.grid(row=3,column=8)                                #right players second card
-        self.card4.create_image(0,0,anchor="nw", image = back)
+        self.card4.create_image(0,0,anchor="nw", image = self.back)
 
-        name1 = tk.Label(self, text = p1.name, font = font1, fg = "yellow", height = 3, width = 20, bg = "black")
+        name1 = tk.Label(self, text = newgame.p1.name, font = font1, fg = "yellow", height = 3, width = 20, bg = "black")
         name1.grid(column = 0, row = 0, sticky = "nsew")          #left players name
 
-        name2 = tk.Label(self, text = p2.name, font = font1, fg = "yellow", height = 3, width = 20, bg = "black")
+        name2 = tk.Label(self, text = newgame.p2.name, font = font1, fg = "yellow", height = 3, width = 20, bg = "black")
         name2.grid(column = 8, row = 0, sticky = "nsew")          #right players name
 
-        self.money1 = tk.Label(self, text = p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+        self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
         self.money1.grid(column = 0, row = 1, sticky = "nsew")         #left players money
 
-        self.money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+        self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
         self.money2.grid(column = 8, row = 1, sticky = "nsew")         #right players money
 
         self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")
         self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")    #amount of money currently in the pot
         
-        self.boardID1 = self.background.create_image(200,196,image = back)
-        self.boardID2 = self.background.create_image(305,196,image = back)
-        self.boardID3 = self.background.create_image(410,196,image = back)      #cards on the board
-        self.boardID4 = self.background.create_image(515,196,image = back)
-        self.boardID5 = self.background.create_image(620,196,image = back)
+        self.boardID1 = self.background.create_image(200,196,image = self.back)
+        self.boardID2 = self.background.create_image(305,196,image = self.back)
+        self.boardID3 = self.background.create_image(410,196,image = self.back)
+        self.boardID4 = self.background.create_image(515,196,image = self.back)
+        self.boardID5 = self.background.create_image(620,196,image = self.back)
 
     def loadup(self):
         # This is run when the screen is displayed, not when it's created
@@ -281,17 +282,13 @@ class game_screen(tk.Frame):
                     self.controller.playerGo = 2        #so player 2 can act
                     newgame.p1.money -= self.controller.amount
                     self.money1.grid_forget()
-                    self.money1 = tk.Label(self, text = p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                     self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
 
                 else:
-                    betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
-                    betLabel.grid(column = 8, row = 5, sticky = "nsew")
-                    app.update()
-
-                    time.sleep(1)
-
-                    betLabel.grid_forget()
+                    self.betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.betLabel.grid(column = 8, row = 5, sticky = "nsew")
+                    self.controller.after(2000, self.betLabelForget)
 
                     
             else:
@@ -307,27 +304,24 @@ class game_screen(tk.Frame):
                     self.controller.playerGo = 1
                     newgame.p2.money -= self.controller.amount
                     self.money2.grid_forget()
-                    self.money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                     self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
                 
                 else:
-                    betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
-                    betLabel.grid(column = 8, row = 5, sticky = "nsew")
-                    app.update()
+                    self.betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.betLabel.grid(column = 8, row = 5, sticky = "nsew")
+                    self.controller.after(2000, self.betLabelForget)
 
-                    time.sleep(1)
-
-                    betLabel.grid_forget()
 
         else:
-            betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
-            betLabel.grid(column = 8, row = 5, sticky = "nsew")
-            app.update()
+            self.betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
+            self.betLabel.grid(column = 8, row = 5, sticky = "nsew")
+            self.controller.after(2000, self.betLabelForget)
 
-            time.sleep(1)
 
-            betLabel.grid_forget()
-            
+    def betLabelForget(self):
+        self.betLabel.grid_forget()
+
 
         
     def betSize(self):
@@ -338,37 +332,67 @@ class game_screen(tk.Frame):
         self.bet1.focus_set() # move cursor to the box
 
     def folded(self):
+        self.bet1.grid_forget()
+        self.button_confirm.grid_forget()
         print("Player " + str(self.controller.playerGo) + " folded")
         if self.controller.playerGo == 1:
             newgame.p2.money += newgame.pot
             self.money2.grid_forget()
-            self.money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+            self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
             self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
-            newgame.pot = 0
-            self.pot_label.grid_forget()
-            self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
-            self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
             self.newHand()    # Move onto next hand
         else:
             newgame.p1.money += newgame.pot
             self.money1.grid_forget()
-            self.money1 = tk.Label(self, text = p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+            self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
             self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
-            newgame.pot = 0
-            self.pot_label.grid_forget()
-            self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
-            self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
             self.newHand()    # Move onto next hand
 
+    def newHand(self):
+
+        print(" ")
+        print("New Hand")
+        print(" ")
+
+        newgame.pot = 0
+        self.pot_label.grid_forget()
+        self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
+        self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
+
+        self.controller.handNum += 1
+        game.deal(newgame)
+        self.controller.betStage = 0
+        self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
+        self.controller.amount = None
+        self.controller.previousBet = 0
+        newgame.p1.totalBet = 0
+        newgame.p2.totalBet = 0
+        if self.controller.handNum % 2 == 0:
+            self.controller.playerGo = 2
+        else:
+            self.controller.playerGo = 1
+        
+        self.boardID1 = self.background.create_image(200,196,image = self.back)
+        self.boardID2 = self.background.create_image(305,196,image = self.back)
+        self.boardID3 = self.background.create_image(410,196,image = self.back)
+        self.boardID4 = self.background.create_image(515,196,image = self.back)
+        self.boardID5 = self.background.create_image(620,196,image = self.back)
+
+        self.card1.create_image(0,0,anchor="nw", image = self.back) 
+        self.card2.create_image(0,0,anchor="nw", image = self.back)
+        self.card3.create_image(0,0,anchor="nw", image = self.back)
+        self.card4.create_image(0,0,anchor="nw", image = self.back)
+
+
     def call(self):
+        self.bet1.grid_forget()
+        self.button_confirm.grid_forget()
         if self.controller.amount is None:
-            callLabel = tk.Label(self, text = "No bet has been made", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
-            callLabel.grid(column = 8, row = 5, sticky = "nsew")
-            app.update()
+            self.callLabel = tk.Label(self, text = "No bet has been made", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
+            self.callLabel.grid(column = 8, row = 5, sticky = "nsew")
+            self.controller.after(2000, self.callLabelForget)
 
-            time.sleep(1)
 
-            callLabel.grid_forget()
         else:
             print("Player " + str(self.controller.playerGo) + " called")
 
@@ -383,7 +407,7 @@ class game_screen(tk.Frame):
                 self.controller.playerGo = 2        #so player 2 can act
                 newgame.p1.money -= newgame.p2.totalBet - newgame.p1.totalBet
                 self.money1.grid_forget()
-                self.money1 = tk.Label(self, text = p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                 self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
 
 
@@ -397,7 +421,7 @@ class game_screen(tk.Frame):
                 # player 1 acts first in next round so dont change playerGo
                 newgame.p1.money -= newgame.p2.totalBet - newgame.p1.totalBet
                 self.money1.grid_forget()
-                self.money1 = tk.Label(self, text = p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                 self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
 
 
@@ -411,7 +435,7 @@ class game_screen(tk.Frame):
                 self.controller.playerGo = 1
                 newgame.p2.money -= newgame.p1.totalBet - newgame.p2.totalBet
                 self.money2.grid_forget()
-                self.money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                 self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
 
 
@@ -426,7 +450,7 @@ class game_screen(tk.Frame):
 
                 newgame.p2.money -= newgame.p1.totalBet - newgame.p2.totalBet
                 self.money2.grid_forget()
-                self.money2 = tk.Label(self, text = p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                 self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
                 
             if self.controller.betStage == 0:
@@ -439,15 +463,22 @@ class game_screen(tk.Frame):
                 pass
                 # run card ranking function when made.
 
+    def callLabelForget(self):
+        self.callLabel.grid_forget()    
+
 
     def check(self):
+        self.rank(newgame.p1.hand,newgame.board)
+        exit()
+        self.bet1.grid_forget()
+        self.button_confirm.grid_forget()
         if self.controller.amount == None:
             print("Player " + str(self.controller.playerGo) + " checked")
             if self.controller.playerGo == 1 and self.controller.handNum % 2 == 1:  # if is is player 1 and they are going first
                 self.controller.playerGo = 2
 
             elif self.controller.playerGo == 1 and self.controller.handNum % 2 == 0:  # if is is player 1 and they are going second 
-                self.controller.playerGo = 1                                          # - ie betting round over
+                self.controller.playerGo = 2                                          # - ie betting round over
 
                 if self.controller.betStage == 0:
                     self.flop()
@@ -475,83 +506,78 @@ class game_screen(tk.Frame):
                     #hand comparison function
         
         else:
-            checkLabel = tk.Label(self, text = "A bet has been made", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
-            checkLabel.grid(column = 8, row = 5, sticky = "nsew")
-            app.update()
+            self.checkLabel = tk.Label(self, text = "A bet has been made", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
+            self.checkLabel.grid(column = 8, row = 5, sticky = "nsew")
+            self.controller.after(2000, self.hideCheckLabel)
 
-            time.sleep(1)
+    def hideCheckLabel(self):
+        self.checkLabel.grid_forget()
 
-            checkLabel.grid_forget()
+
+    def getValue(self,card):
+        return card.value
+
+
+    def rank(self,playerHand,board):
+        allCards = []
+        for i in playerHand:
+            allCards.append(i)
+        for i in board:
+            allCards.append(i)
+        allCards.sort(key=self.getValue)
+        combinations = itertools.combinations(allCards,5)
+        for i in combinations:
+            print(i)
+        exit()
+        highestScore = [0,0]
+        for x in combinations:
+            currentScore = score(x)
+            if highestScore[0] < currentScore[0]:
+                for i in range(2):
+                    highestScore[i] = currentScore[i]
+            elif highestScore[0] == currentScore[0] and highestScore[1] < currentScore[1]:
+                for i in range(2):
+                    highestScore[i] = currentScore[i]
+        
+    
+
+    #def score(self):
 
 
 
 
     def revealp1(self):
+        self.p1cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[0].image))    #show right players cards
+        self.card1.create_image(0,0,anchor="nw", image = self.p1cardimage1)
 
-        p1card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  # this layers multiple canvas on top of each other
-        p1card1.grid(row=3,column=0)                                                                        #needs to be fixed
-        global p1cardimage1
-        p1cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[0].image))                                 #show right players cards
-        p1card1.create_image(0,0,anchor="nw", image = p1cardimage1)
+        self.p1cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[1].image))
+        self.card2.create_image(0,0,anchor="nw", image = self.p1cardimage2)
 
-        p1card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        p1card2.grid(row=3,column=1)
-        global p1cardimage2
-        p1cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[1].image))
-        p1card2.create_image(0,0,anchor="nw", image = p1cardimage2)
+        self.controller.after(2000, self.hideCards)
 
-        self.card1.grid_forget()
-        self.card2.grid_forget()
-
-        app.update()
-
-        time.sleep(1.5)
-
-        p1card1.grid_forget()
-        p1card2.grid_forget()
-
-        self.card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        self.card1.grid(row=3,column=0)
-        self.card1.create_image(0,0,anchor="nw", image = back) 
-
-        self.card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        self.card2.grid(row=3,column=1)
-        self.card2.create_image(0,0,anchor="nw", image = back)   
-        
 
     def revealp2(self):
 
-        p2card1 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        p2card1.grid(row=3,column=7)
-        global p2cardimage1
-        p2cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[0].image))                                 #show right players cards
-        p2card1.create_image(0,0,anchor="nw", image = p2cardimage1)
+        self.p2cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[0].image))    #show right players cards
+        self.card3.create_image(0,0,anchor="nw", image = self.p2cardimage1)
 
-        p2card2 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        p2card2.grid(row=3,column=8)
-        global p2cardimage2
-        p2cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[1].image))
-        p2card2.create_image(0,0,anchor="nw", image = p2cardimage2)
+        self.p2cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[1].image))
+        self.card4.create_image(0,0,anchor="nw", image = self.p2cardimage2)
 
-        self.card3.grid_forget()
-        self.card4.grid_forget()
+        self.controller.after(2000, self.hideCards)
 
-        app.update()
-
-        time.sleep(1.5)
-
-        p2card1.grid_forget()
-        p2card2.grid_forget()       
-
-        self.card3 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        self.card3.grid(row=3,column=7)
-        self.card3.create_image(0,0,anchor="nw", image = back) 
-
-        self.card4 = tk.Canvas(self, width = 100, height = 152, bd = 0, highlightthickness = 0, bg = "black")  
-        self.card4.grid(row=3,column=8)
-        self.card4.create_image(0,0,anchor="nw", image = back)   
+    def hideCards(self):
+        self.card1.create_image(0,0,anchor="nw", image = self.back) 
+        self.card2.create_image(0,0,anchor="nw", image = self.back)
+        self.card3.create_image(0,0,anchor="nw", image = self.back)
+        self.card4.create_image(0,0,anchor="nw", image = self.back)
 
     def flop(self):
+
+        print(" ")
+        print("Flop")
+        print(" ")
+
         global board1                                               
         board1 = ImageTk.PhotoImage(Image.open(newgame.board[0].image))
         self.boardID1 = self.background.create_image(200,196,image = board1)
@@ -576,6 +602,11 @@ class game_screen(tk.Frame):
 
 
     def turn(self):
+
+        print(" ")
+        print("Turn")
+        print(" ")
+
         global board4                                               
         board4 = ImageTk.PhotoImage(Image.open(newgame.board[3].image))
         self.boardID4 = self.background.create_image(515,196,image = board4)
@@ -589,6 +620,11 @@ class game_screen(tk.Frame):
 
 
     def river(self):
+
+        print(" ")
+        print("River")
+        print(" ")
+
         global board5                                               
         board5 = ImageTk.PhotoImage(Image.open(newgame.board[4].image))
         self.boardID5 = self.background.create_image(620,196,image = board5)
@@ -600,18 +636,6 @@ class game_screen(tk.Frame):
         self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
 
 
-
-    def newHand(self):
-        self.controller.handNum += 1
-        self.game.deal()
-        self.controller.betStage = 0
-        self.maxBet = min(p1.money , p2.money)
-        self.controller.amount = None
-        self.controller.previousBet = 0
-        if self.controller.handNum % 2 == 0:
-            self.controller.playerGo = 2
-        else:
-            self.controller.playerGo = 1
 
 
     
@@ -625,12 +649,6 @@ app.mainloop()
 #print(newgame.board)
 # print(newgame.p1.hand)
 # print(newgame.p2.hand)
-
-
-#def show(self, image):
-    
-
-#image = makeSprite("cards/7C.jpg")
     
     
 
