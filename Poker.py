@@ -5,7 +5,7 @@ from tkinter import font as tkfont
 from PIL import Image, ImageTk
 import time
 import itertools
-
+import pygame
 
 class player:
     def __init__(self,name):
@@ -70,6 +70,7 @@ class App(tk.Tk):
         self.maxBet = min(newgame.p1.money , newgame.p2.money)
         self.amount = None              #current bet
         self.previousBet = 0
+        self.AllIn = False
 
         self.frames = {}
 
@@ -286,6 +287,9 @@ class game_screen(tk.Frame):
                     self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                     self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
 
+                    if newgame.p1.totalBet == self.controller.maxBet:
+                        self.controller.AllIn = True
+
                 else:
                     self.betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
                     self.betLabel.grid(column = 8, row = 5, sticky = "nsew")
@@ -293,7 +297,8 @@ class game_screen(tk.Frame):
 
                     
             else:
-                if self.controller.amount > 0 and self.controller.amount <= self.controller.maxBet - newgame.p2.totalBet and self.controller.amount <= int(newgame.p2.money) and self.controller.amount > self.controller.previousBet:
+                if amountCheck > 0 and amountCheck <= self.controller.maxBet - newgame.p2.totalBet and amountCheck <= int(newgame.p2.money) and amountCheck > self.controller.previousBet:
+                    self.controller.amount = amountCheck
                     newgame.p2.totalBet += self.controller.amount
                     self.controller.previousBet = self.controller.amount
                     newgame.pot += self.controller.amount
@@ -307,6 +312,9 @@ class game_screen(tk.Frame):
                     self.money2.grid_forget()
                     self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                     self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
+
+                    if newgame.p2.totalBet == self.controller.maxBet:
+                        self.controller.AllIn = True            
                 
                 else:
                     self.betLabel = tk.Label(self, text = "Please enter a legal bet", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
@@ -355,7 +363,7 @@ class game_screen(tk.Frame):
 
         self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
         self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-        
+
         #updating players money
 
         self.money1.grid(column = 0, row = 1, sticky = "nsew")
@@ -376,6 +384,8 @@ class game_screen(tk.Frame):
         self.controller.previousBet = 0
         newgame.p1.totalBet = 0
         newgame.p2.totalBet = 0
+        self.controller.AllIn = False
+
         if self.controller.handNum % 2 == 0:
             self.controller.playerGo = 2
         else:
@@ -401,11 +411,10 @@ class game_screen(tk.Frame):
             self.callLabel.grid(column = 8, row = 5, sticky = "nsew")
             self.controller.after(2000, self.callLabelForget)
 
-
         else:
             print("Player " + str(self.controller.playerGo) + " called")
 
-            if self.controller.playerGo == 1 and self.controller.handNum % 2 == 0:
+            if self.controller.playerGo == 1 and self.controller.handNum % 2 == 0:  
                 
                 newgame.pot += newgame.p2.totalBet - newgame.p1.totalBet
                 self.pot_label.grid_forget()
@@ -420,7 +429,7 @@ class game_screen(tk.Frame):
                 self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
 
 
-            elif self.controller.playerGo == 1 and self.controller.handNum % 2 == 1:
+            elif self.controller.playerGo == 1 and self.controller.handNum % 2 == 1:    
                 
                 newgame.pot += newgame.p2.totalBet - newgame.p1.totalBet
                 self.pot_label.grid_forget()
@@ -434,7 +443,7 @@ class game_screen(tk.Frame):
                 self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
 
 
-            elif self.controller.playerGo == 2 and self.controller.handNum % 2 == 1:
+            elif self.controller.playerGo == 2 and self.controller.handNum % 2 == 1:    
 
                 newgame.pot += newgame.p1.totalBet - newgame.p2.totalBet
                 self.pot_label.grid_forget()
@@ -461,8 +470,10 @@ class game_screen(tk.Frame):
                 self.money2.grid_forget()
                 self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
                 self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
-                
-            if self.controller.betStage == 0:
+
+            if self.controller.AllIn == True:
+                self.allIn()  
+            elif self.controller.betStage == 0:
                 self.flop()
             elif self.controller.betStage == 1:                                     # figures out which round and show cards
                 self.turn()
@@ -470,6 +481,7 @@ class game_screen(tk.Frame):
                 self.river()
             else:
                 self.compare()                            #compare the 2 players hands and output a winner
+
 
     def callLabelForget(self):
         self.callLabel.grid_forget()    
@@ -631,7 +643,6 @@ class game_screen(tk.Frame):
 
 
             self.controller.after(2000, self.hideWin1Label)
-            self.newHand()
 
         elif p1Score[0] == p2Score[0] and p1Score[1] > p2Score[1]:
             self.win1_label = tk.Label(self, text = str(newgame.p1.name)+ " won the hand", font = font1, fg = "yellow", bg = "black")
@@ -639,16 +650,14 @@ class game_screen(tk.Frame):
             newgame.p1.money += newgame.pot
 
             self.controller.after(2000, self.hideWin1Label)
-            self.newHand()
        
         elif p1Score == p2Score:
             self.draw_label = tk.Label(self, text = "The hand was a draw", font = font1, fg = "yellow", bg = "black")
             self.draw_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
-            newgame.p1.money += newgame.p1.totalBet
-            newgame.p2.money += newgame.p2.totalBet
+            newgame.p1.money += newgame.pot // 2
+            newgame.p2.money += newgame.pot // 2
 
             self.controller.after(2000, self.hideDrawLabel)
-            self.newHand()
         else:
             self.win2_label = tk.Label(self, text = str(newgame.p2.name) + " won the hand", font = font1, fg = "yellow", bg = "black")
             self.win2_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
@@ -656,7 +665,9 @@ class game_screen(tk.Frame):
 
 
             self.controller.after(2000, self.hideWin2Label)
-            self.newHand()
+        
+        self.newHand()
+        self.winner()
 
 
     def hideWin1Label(self):               #hide the  player 1 wins label 
@@ -669,6 +680,43 @@ class game_screen(tk.Frame):
         self.win2_label.grid_forget()
 
 
+    def allIn(self):
+        if self.controller.betStage == 0:
+            self.flop()
+            self.turn()
+            self.river()
+            self.revealp1()
+            self.revealp2()
+        elif self.controller.betStage == 1:
+            self.turn()
+            self.river()
+            self.revealp1()
+            self.revealp2()
+        elif self.controller.betStage == 2:
+            self.river()
+            self.revealp1()
+            self.revealp2()
+        elif self.controller.betStage == 3:
+            self.revealp1()
+            self.revealp2()
+
+        self.controller.after(3000, self.compare)
+
+    
+    def winner(self):
+        if newgame.p1.money == 0:
+            self.winner2_label = tk.Label(self, text = str(newgame.p2.name) + " has won the game!", font = font1, fg = "yellow", bg = "black")
+            self.winner2_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
+            self.controller.after(3000, self.end)
+        elif newgame.p2.money == 0:
+            self.winner1_label = tk.Label(self, text = str(newgame.p1.name) + " has won the game!", font = font1, fg = "yellow", bg = "black")
+            self.winner1_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
+            self.controller.after(3000, self.end)
+
+
+    def end(self):
+        exit()
+
 
     def revealp1(self):
         self.p1cardimage1 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[0].image))    #show right players cards
@@ -677,7 +725,7 @@ class game_screen(tk.Frame):
         self.p1cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p1.hand[1].image))
         self.card2.create_image(0,0,anchor="nw", image = self.p1cardimage2)
 
-        self.controller.after(2000, self.hideCards)
+        self.controller.after(3000, self.hideCards)
 
 
     def revealp2(self):
@@ -688,7 +736,7 @@ class game_screen(tk.Frame):
         self.p2cardimage2 = ImageTk.PhotoImage(Image.open(newgame.p2.hand[1].image))
         self.card4.create_image(0,0,anchor="nw", image = self.p2cardimage2)
 
-        self.controller.after(2000, self.hideCards)
+        self.controller.after(3000, self.hideCards)
 
     def hideCards(self):
         self.card1.create_image(0,0,anchor="nw", image = self.back) 
@@ -761,21 +809,9 @@ class game_screen(tk.Frame):
 
 
 
-
     
 
 
 app = App()
 
 app.mainloop()
-
-
-#print(newgame.board)
-# print(newgame.p1.hand)
-# print(newgame.p2.hand)
-    
-    
-
-
-
-#endWait()
