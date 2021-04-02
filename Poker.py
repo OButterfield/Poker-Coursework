@@ -65,12 +65,20 @@ class App(tk.Tk):
         self.playerNum = None
         self.difficulty = 1     #easy   #if easy selected then leave this, else change to 2 to represent hard
         self.betStage = 0     # 0 is pre-flop, 1 means the flop has been done ... 
-        self.playerGo = 1
-        self.handNum = 1
-        self.maxBet = min(newgame.p1.money , newgame.p2.money)
-        self.amount = None              #current bet
-        self.previousBet = 0
-        self.AllIn = False
+        self.playerGo = 1           #Tracks whos go it is
+        self.handNum = 1            #Tracks which hand the game is on.
+        self.maxBet = min(newgame.p1.money , newgame.p2.money)  #equal to the amount of money the player with the least has
+        self.amount = 20              #current bet
+        self.previousBet = 10        #Tracks the previous bet, so you can't bet less.
+        self.AllIn = False          #Tracks if a player has gone all in
+        self.smallBlind = 1         #Tracks who is small blind
+        self.blindAllin = False
+        newgame.p1.money = 990
+        newgame.p1.totalBet = 10
+        newgame.p2.money = 980
+        newgame.p2.totalBet = 20
+        newgame.pot = 30
+        
 
         self.frames = {}
 
@@ -357,40 +365,17 @@ class game_screen(tk.Frame):
         print("New Hand")
         print(" ")
 
-
-        self.money1.grid_forget()
-        self.money2.grid_forget()
-
-        self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-        self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-
-        #updating players money
-
-        self.money1.grid(column = 0, row = 1, sticky = "nsew")
-        self.money2.grid(column = 8, row = 1, sticky = "nsew")
-
-
-
-        newgame.pot = 0
-        self.pot_label.grid_forget()
-        self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
-        self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
-
+        self.controller.blindAllin = False
         self.controller.handNum += 1
         game.deal(newgame)
         self.controller.betStage = 0
-        self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
-        self.controller.amount = None
-        self.controller.previousBet = 0
-        newgame.p1.totalBet = 0
-        newgame.p2.totalBet = 0
         self.controller.AllIn = False
 
         if self.controller.handNum % 2 == 0:
             self.controller.playerGo = 2
         else:
             self.controller.playerGo = 1
-        
+
         self.boardID1 = self.background.create_image(200,196,image = self.back)
         self.boardID2 = self.background.create_image(305,196,image = self.back)
         self.boardID3 = self.background.create_image(410,196,image = self.back)
@@ -403,84 +388,226 @@ class game_screen(tk.Frame):
         self.card4.create_image(0,0,anchor="nw", image = self.back)
 
 
+        if self.controller.smallBlind == 1 and newgame.p1.money > 20 and newgame.p2.money > 10: #P1 was small blind, big blind now
+            if newgame.p1.money > 20 and newgame.p2.money > 20:
+                self.controller.smallBlind = 2
+                newgame.p1.money -= 20
+                newgame.p1.totalBet = 20
+                newgame.p2.money -= 10                                                                  #Both players have enough money
+                newgame.p2.totalBet = 10
+                newgame.pot = 30
+                self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
+                self.controller.amount = 20
+                self.controller.previousBet = 10
+            else:
+                self.controller.smallBlind = 2
+                newgame.p1.money -= 20
+                newgame.p1.totalBet = 20                                #Both players have enough money for blinds but p2 has < 20
+                newgame.p2.money -= 10                                      
+                newgame.p2.totalBet = 10
+                newgame.pot = 30
+                self.controller.blindAllin = True
+
+        elif self.controller.smallBlind == 2 and newgame.p1.money > 10 and newgame.p2.money > 20:   #P1 was big blind, small blind now
+            if newgame.p1.money > 20 and newgame.p2.money > 20:
+                self.controller.smallBlind = 1
+                newgame.p1.money -= 10
+                newgame.p1.totalBet = 10                                                                #Both players have enough money
+                newgame.p2.money -= 20
+                newgame.p2.totalBet = 20
+                newgame.pot = 30
+                self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
+                self.controller.amount = 20
+                self.controller.previousBet = 10
+            else:
+                self.controller.smallBlind = 1
+                newgame.p1.money -= 10
+                newgame.p1.totalBet = 10                                   #Both players have enough money for blinds but p1 has < 20
+                newgame.p2.money -= 20
+                newgame.p2.totalBet = 20
+                newgame.pot = 30
+                self.controller.blindAllin = True
+        
+        elif self.controller.smallBlind == 2 and newgame.p1.money < 10:           #P1 is small blind, but does not have enough for this.
+            self.controller.smallBlind = 1
+            newgame.pot = int(newgame.p1.money) + 20
+            newgame.p1.money = 0                            #Put all of P1 money into the pot and put the big blind from P2 into the pot, 
+            newgame.p2.money -= 20                          # then call the all in function.
+            self.controller.after(2000, self.allIn)
+        
+        elif self.controller.smallBlind == 2 and newgame.p2.money < 20:   #P1 is small blind and P2 does not have enough for the big blind.
+            self.controller.smallBlind = 1
+            newgame.pot = int(newgame.p2.money) + 10                      #Put the small blind in from P1, put all of P2’s money in the 
+            if newgame.p2.money <= 10:                                    #pot, if this is less than the small blind then call the all in 
+                self.controller.after(2000,self.allIn)                    # function, if it is more, check if P1 wants to call the 
+            else:                                                         # additional money.
+                newgame.p1.totalBet = 10
+                newgame.p2.totalBet = newgame.p2.money
+                self.controller.amount = newgame.p2.money
+                self.controller.previousBet = 10
+
+            newgame.p1.money -= 10
+            newgame.p2.money = 0
+        
+        elif self.controller.smallBlind == 1 and newgame.p2.money < 10:           #P2 is small blind and does not have enough for this.
+            self.controller.smallBlind = 2
+            newgame.pot = int(newgame.p2.money) + 20                              #Put all of P2’s money into the pot and also put in the
+            newgame.p1.money -= 20                                                #big blind from P1 then call the all in function.
+            newgame.p2.money = 0
+            self.controller.after(2000, self.allIn)
+        
+        elif self.controller.smallBlind == 1 and newgame.p1.money < 20:   #P2 is small blind and P1 does not have enough for the big blind
+            self.controller.smallBlind = 2
+            newgame.pot = int(newgame.p1.money) + 10                      #Put the small blind in from P2, then put in all of P1’s money,
+            if newgame.p1.money <= 10:                                    #if this is less than the small blind then call the all in
+                self.controller.after(2000, self.allIn)                   #function, if it is more, check if P2 wants to call the
+            else:                                                         #additional money.
+                newgame.p1.totalBet = newgame.p1.money
+                newgame.p2.totalBet = 10
+                self.controller.amount = newgame.p1.money
+                self.controller.previousBet = 10
+
+            newgame.p1.money = 0
+            newgame.p2.money -= 10
+
+
+        self.money1.grid_forget()
+        self.money2.grid_forget()
+
+        self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+        self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+
+        #updating players money
+
+        self.money1.grid(column = 0, row = 1, sticky = "nsew")
+        self.money2.grid(column = 8, row = 1, sticky = "nsew")
+
+        self.pot_label.grid_forget()
+        self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
+        self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
+
+
+
+
+        #newgame.pot = 0
+        #self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
+        #self.controller.amount = None
+        #self.controller.previousBet = 0
+        #newgame.p1.totalBet = 0
+        #newgame.p2.totalBet = 0
+
+
+
+
+
+
     def call(self):
         self.bet1.grid_forget()
         self.button_confirm.grid_forget()
-        if self.controller.amount is None:
-            self.callLabel = tk.Label(self, text = "No bet has been made", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
-            self.callLabel.grid(column = 8, row = 5, sticky = "nsew")
-            self.controller.after(2000, self.callLabelForget)
+        if self.controller.blindAllin == True:
+            if self.controller.smallBlind == 1:
+                newgame.pot += newgame.p1.money
+                newgame.p1.money = 0
+
+                self.money1.grid_forget()
+                self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                self.money1.grid(column = 0, row = 1, sticky = "nsew")      #updating players money
+
+                self.pot_label.grid_forget()
+                self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")
+                self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")       #updating the pot label
+
+                self.allIn()
+
+            if self.controller.smallBlind == 2:
+                newgame.pot += newgame.p2.money
+                newgame.p2.money = 0
+                self.money2.grid_forget()
+                self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                self.money2.grid(column = 8, row = 1, sticky = "nsew")      #updating players money
+
+                self.pot_label.grid_forget()
+                self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")
+                self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")       #updating the pot label
+
+                self.allIn()
 
         else:
-            print("Player " + str(self.controller.playerGo) + " called")
+            if self.controller.amount is None:
+                self.callLabel = tk.Label(self, text = "No bet has been made", font = font2, fg = "blue", height = 3, width = 20, bg = "black")
+                self.callLabel.grid(column = 8, row = 5, sticky = "nsew")
+                self.controller.after(2000, self.callLabelForget)
 
-            if self.controller.playerGo == 1 and self.controller.handNum % 2 == 0:  
-                
-                newgame.pot += newgame.p2.totalBet - newgame.p1.totalBet
-                self.pot_label.grid_forget()
-                self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
-                self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
-
-
-                self.controller.playerGo = 2        #so player 2 can act
-                newgame.p1.money -= newgame.p2.totalBet - newgame.p1.totalBet
-                self.money1.grid_forget()
-                self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-                self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
-
-
-            elif self.controller.playerGo == 1 and self.controller.handNum % 2 == 1:    
-                
-                newgame.pot += newgame.p2.totalBet - newgame.p1.totalBet
-                self.pot_label.grid_forget()
-                self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
-                self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
-
-                # player 1 acts first in next round so dont change playerGo
-                newgame.p1.money -= newgame.p2.totalBet - newgame.p1.totalBet
-                self.money1.grid_forget()
-                self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-                self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
-
-
-            elif self.controller.playerGo == 2 and self.controller.handNum % 2 == 1:    
-
-                newgame.pot += newgame.p1.totalBet - newgame.p2.totalBet
-                self.pot_label.grid_forget()
-                self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
-                self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
-
-                self.controller.playerGo = 1
-                newgame.p2.money -= newgame.p1.totalBet - newgame.p2.totalBet
-                self.money2.grid_forget()
-                self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-                self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
-
-
-            elif self.controller.playerGo == 2 and self.controller.handNum % 2 == 0:
-                
-                newgame.pot += newgame.p1.totalBet - newgame.p2.totalBet
-                self.pot_label.grid_forget()
-                self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
-                self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
-
-                #player 2 acts first next round so dont change back to player 1 go.
-
-                newgame.p2.money -= newgame.p1.totalBet - newgame.p2.totalBet
-                self.money2.grid_forget()
-                self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
-                self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
-
-            if self.controller.AllIn == True:
-                self.allIn()  
-            elif self.controller.betStage == 0:
-                self.flop()
-            elif self.controller.betStage == 1:                                     # figures out which round and show cards
-                self.turn()
-            elif self.controller.betStage == 2:
-                self.river()
             else:
-                self.compare()                            #compare the 2 players hands and output a winner
+                print("Player " + str(self.controller.playerGo) + " called")
+
+                if self.controller.playerGo == 1 and self.controller.handNum % 2 == 0:  
+                    
+                    newgame.pot += newgame.p2.totalBet - newgame.p1.totalBet
+                    self.pot_label.grid_forget()
+                    self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
+                    self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
+
+
+                    self.controller.playerGo = 2        #so player 2 can act
+                    newgame.p1.money -= newgame.p2.totalBet - newgame.p1.totalBet
+                    self.money1.grid_forget()
+                    self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
+
+
+                elif self.controller.playerGo == 1 and self.controller.handNum % 2 == 1:    
+                    
+                    newgame.pot += newgame.p2.totalBet - newgame.p1.totalBet
+                    self.pot_label.grid_forget()
+                    self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
+                    self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
+
+                    # player 1 acts first in next round so dont change playerGo
+                    newgame.p1.money -= newgame.p2.totalBet - newgame.p1.totalBet
+                    self.money1.grid_forget()
+                    self.money1 = tk.Label(self, text = newgame.p1.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.money1.grid(column = 0, row = 1, sticky = "nsew")              #updating the players money
+
+
+                elif self.controller.playerGo == 2 and self.controller.handNum % 2 == 1:    
+
+                    newgame.pot += newgame.p1.totalBet - newgame.p2.totalBet
+                    self.pot_label.grid_forget()
+                    self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
+                    self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
+
+                    self.controller.playerGo = 1
+                    newgame.p2.money -= newgame.p1.totalBet - newgame.p2.totalBet
+                    self.money2.grid_forget()
+                    self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
+
+
+                elif self.controller.playerGo == 2 and self.controller.handNum % 2 == 0:
+                    
+                    newgame.pot += newgame.p1.totalBet - newgame.p2.totalBet
+                    self.pot_label.grid_forget()
+                    self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
+                    self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
+
+                    #player 2 acts first next round so dont change back to player 1 go.
+
+                    newgame.p2.money -= newgame.p1.totalBet - newgame.p2.totalBet
+                    self.money2.grid_forget()
+                    self.money2 = tk.Label(self, text = newgame.p2.money, font = font1, fg = "blue", height = 3, width = 20, bg = "black")
+                    self.money2.grid(column = 8, row = 1, sticky = "nsew")              #updating the players money
+
+                if self.controller.AllIn == True:
+                    self.allIn()  
+                elif self.controller.betStage == 0:
+                    self.flop()
+                elif self.controller.betStage == 1:                                     # figures out which round and show cards
+                    self.turn()
+                elif self.controller.betStage == 2:
+                    self.river()
+                else:
+                    self.compare()                            #compare the 2 players hands and output a winner
 
 
     def callLabelForget(self):
@@ -666,8 +793,8 @@ class game_screen(tk.Frame):
 
             self.controller.after(2000, self.hideWin2Label)
         
-        self.newHand()
         self.winner()
+        self.newHand()
 
 
     def hideWin1Label(self):               #hide the  player 1 wins label 
@@ -815,3 +942,41 @@ class game_screen(tk.Frame):
 app = App()
 
 app.mainloop()
+
+'''
+with open('scores.txt','r') as outFile:
+    outFile.write('hello')
+
+outFile = open('scores.txt','r')
+outFile.write('hello')
+outFile.close()
+
+
+scores = open("scores.txt", "r")
+    txt = []
+    for line in scores:
+        txt += line
+
+    scores.close()
+
+infile = open('test.txt','r')
+arr = []
+for line in infile:
+    arr.append(line.split())
+
+print(arr)
+[['1.', 'Bob', '-', '£900'], ['2.', 'Alice', '-', '£825'], ['3.', 'James', '-', '£700']]
+
+arr.sort(key = lambda arr: arr[3])
+print(arr)
+[['3.', 'James', '-', '£700'], ['2.', 'Alice', '-', '£825'], ['1.', 'Bob', '-', '£900']]
+
+arr.sort(key = lambda arr: arr[3],reverse=True)
+print(arr)
+[['1.', 'Bob', '-', '£900'], ['2.', 'Alice', '-', '£825'], ['3.', 'James', '-', '£700']]
+
+for i in range 3
+outfile.write('{0}. {1} - {3}'.format(i+1,arr[1],arr[3]))
+or 
+str(i+1) + '.'
+'''
