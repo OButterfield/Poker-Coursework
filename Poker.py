@@ -113,7 +113,7 @@ class main_screen(tk.Frame):
         txt = ""
         for line in scores:
             txt += line
-
+        txt = txt[:-1]
         scores.close()
 
         potWinners = tk.Label(self, text = txt, font = font1, fg = "black", height = 3, width = 20, bg = "tomato")
@@ -387,8 +387,10 @@ class game_screen(tk.Frame):
         self.card3.create_image(0,0,anchor="nw", image = self.back)
         self.card4.create_image(0,0,anchor="nw", image = self.back)
 
+        if newgame.p1.money == 0 or newgame.p2.money == 0:
+            newgame.pot = 0
 
-        if self.controller.smallBlind == 1 and newgame.p1.money > 20 and newgame.p2.money > 10: #P1 was small blind, big blind now
+        elif self.controller.smallBlind == 1 and newgame.p1.money > 20 and newgame.p2.money > 10: #P1 was small blind, big blind now
             if newgame.p1.money > 20 and newgame.p2.money > 20:
                 self.controller.smallBlind = 2
                 newgame.p1.money -= 20
@@ -678,7 +680,6 @@ class game_screen(tk.Frame):
             elif highestScore[0] == currentScore[0] and highestScore[1] < currentScore[1]:
                 for i in range(2):
                     highestScore[i] = currentScore[i]   #setting highestScore to be currentScore
-        print(highestScore)
         return highestScore
     
 
@@ -763,32 +764,77 @@ class game_screen(tk.Frame):
     def compare(self):
         p1Score = self.rank(newgame.p1.hand, newgame.board)
         p2Score = self.rank(newgame.p2.hand, newgame.board)
-        if p1Score[0] > p2Score[0]:
+        if p1Score[0] > p2Score[0]:                             #P1 wins
             self.win1_label = tk.Label(self, text = str(newgame.p1.name) + " won the hand", font = font1, fg = "yellow", bg = "black")
             self.win1_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
             newgame.p1.money += newgame.pot
 
 
+            infile = open('scores.txt','r')
+            newScore = '4. {} - £{}\n'.format(newgame.p1.name,newgame.pot)
+            arr = []
+            arr.append(newScore[:-1].split())
+            for line in infile:
+                arr.append(line[:-1].split())
+            infile.close()
+            outfile = open('scores.txt','w')
+
+            arr.sort(key = lambda x: int(x[3][1:]),reverse=True)            
+            for i in range(3):
+                outfile.write('{}. {} - {}\n'.format(i+1,arr[i][1],arr[i][3]))
+
+            outfile.close()
+
             self.controller.after(2000, self.hideWin1Label)
 
-        elif p1Score[0] == p2Score[0] and p1Score[1] > p2Score[1]:
+        elif p1Score[0] == p2Score[0] and p1Score[1] > p2Score[1]:      #P1 wins
             self.win1_label = tk.Label(self, text = str(newgame.p1.name)+ " won the hand", font = font1, fg = "yellow", bg = "black")
             self.win1_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
             newgame.p1.money += newgame.pot
 
+            infile = open('scores.txt','r')
+            newScore = '4. {} - £{}\n'.format(newgame.p1.name,newgame.pot)
+            arr = []
+            arr.append(newScore[:-1].split())
+            for line in infile:
+                arr.append(line[:-1].split())
+            infile.close()
+            outfile = open('scores.txt','w')
+
+            arr.sort(key = lambda x: int(x[3][1:]),reverse=True)            
+            for i in range(3):
+                outfile.write('{}. {} - {}\n'.format(i+1,arr[i][1],arr[i][3]))
+
+            outfile.close()
+
             self.controller.after(2000, self.hideWin1Label)
        
-        elif p1Score == p2Score:
+        elif p1Score == p2Score:                                #Draw
             self.draw_label = tk.Label(self, text = "The hand was a draw", font = font1, fg = "yellow", bg = "black")
             self.draw_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
             newgame.p1.money += newgame.pot // 2
             newgame.p2.money += newgame.pot // 2
 
             self.controller.after(2000, self.hideDrawLabel)
-        else:
+        else:                                                         #P2 wins
             self.win2_label = tk.Label(self, text = str(newgame.p2.name) + " won the hand", font = font1, fg = "yellow", bg = "black")
             self.win2_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
             newgame.p2.money += newgame.pot
+
+            infile = open('scores.txt','r')
+            newScore = '4. {} - £{}\n'.format(newgame.p2.name,newgame.pot)
+            arr = []
+            arr.append(newScore[:-1].split())
+            for line in infile:
+                arr.append(line[:-1].split())
+            infile.close()
+            outfile = open('scores.txt','w')
+
+            arr.sort(key = lambda x: int(x[3][1:]),reverse=True)            
+            for i in range(3):
+                outfile.write('{}. {} - {}\n'.format(i+1,arr[i][1],arr[i][3]))
+
+            outfile.close()
 
 
             self.controller.after(2000, self.hideWin2Label)
@@ -935,48 +981,6 @@ class game_screen(tk.Frame):
         self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
 
 
-
-    
-
-
 app = App()
 
 app.mainloop()
-
-'''
-with open('scores.txt','r') as outFile:
-    outFile.write('hello')
-
-outFile = open('scores.txt','r')
-outFile.write('hello')
-outFile.close()
-
-
-scores = open("scores.txt", "r")
-    txt = []
-    for line in scores:
-        txt += line
-
-    scores.close()
-
-infile = open('test.txt','r')
-arr = []
-for line in infile:
-    arr.append(line.split())
-
-print(arr)
-[['1.', 'Bob', '-', '£900'], ['2.', 'Alice', '-', '£825'], ['3.', 'James', '-', '£700']]
-
-arr.sort(key = lambda arr: arr[3])
-print(arr)
-[['3.', 'James', '-', '£700'], ['2.', 'Alice', '-', '£825'], ['1.', 'Bob', '-', '£900']]
-
-arr.sort(key = lambda arr: arr[3],reverse=True)
-print(arr)
-[['1.', 'Bob', '-', '£900'], ['2.', 'Alice', '-', '£825'], ['3.', 'James', '-', '£700']]
-
-for i in range 3
-outfile.write('{0}. {1} - {3}'.format(i+1,arr[1],arr[3]))
-or 
-str(i+1) + '.'
-'''
