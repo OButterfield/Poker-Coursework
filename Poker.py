@@ -278,7 +278,7 @@ class game_screen(tk.Frame):
         if self.bet1.get().isdigit():
             amountCheck = int(self.bet1.get())
 
-            if self.controller.playerGo == 1:
+            if self.controller.playerGo == 1:                                                                     #not true
                 if amountCheck > 0 and amountCheck <= self.controller.maxBet - newgame.p1.totalBet and amountCheck <= int(newgame.p1.money) and amountCheck > self.controller.previousBet:  
                     self.controller.amount = amountCheck
                     newgame.p1.totalBet += self.controller.amount
@@ -487,20 +487,6 @@ class game_screen(tk.Frame):
         self.pot_label.grid_forget()
         self.pot_label = tk.Label(self, text = str(newgame.pot), font = font1, fg = "yellow", bg = "black")     #updating the pot label
         self.pot_label.grid(column = 3, row = 2, columnspan = 2, sticky = "nsew")
-
-
-
-
-        #newgame.pot = 0
-        #self.controller.maxBet = min(newgame.p1.money , newgame.p2.money)
-        #self.controller.amount = None
-        #self.controller.previousBet = 0
-        #newgame.p1.totalBet = 0
-        #newgame.p2.totalBet = 0
-
-
-
-
 
 
     def call(self):
