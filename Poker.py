@@ -42,10 +42,10 @@ class game:
 
 
 
-# p1 = player(input("Please input your name?"))
-# p2 = player(input("Please input your name?"))
-p1=player("Bob")
-p2=player("Alice")
+p1 = player(input("Please input your name?"))
+p2 = player(input("Please input your name?"))
+# p1=player("Bob")
+# p2=player("Alice")
 newgame = game(0,p1,p2)
 
 
@@ -278,7 +278,7 @@ class game_screen(tk.Frame):
         if self.bet1.get().isdigit():
             amountCheck = int(self.bet1.get())
 
-            if self.controller.playerGo == 1:                                                                     #not true
+            if self.controller.playerGo == 1:
                 if amountCheck > 0 and amountCheck <= self.controller.maxBet - newgame.p1.totalBet and amountCheck <= int(newgame.p1.money) and amountCheck > self.controller.previousBet:  
                     self.controller.amount = amountCheck
                     newgame.p1.totalBet += self.controller.amount
