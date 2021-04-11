@@ -3,9 +3,7 @@ import tkinter.font as tkFont
 import tkinter as tk
 from tkinter import font as tkfont
 from PIL import Image, ImageTk
-import time
 import itertools
-import pygame
 
 class player:
     def __init__(self,name):
@@ -42,8 +40,8 @@ class game:
 
 
 
-p1 = player(input("Please input your name?"))
-p2 = player(input("Please input your name?"))
+p1 = player(input("Please input your name? "))
+p2 = player(input("Please input your name? "))
 # p1=player("Bob")
 # p2=player("Alice")
 newgame = game(0,p1,p2)
@@ -109,7 +107,7 @@ class main_screen(tk.Frame):
         font2 = tkFont.Font(family = "Arial", size = 18)
         self.config(bg="tomato")
 
-        scores = open("scores.txt", "r")
+        scores = open("scores.txt", "r", newline = "")
         txt = ""
         for line in scores:
             txt += line
@@ -756,16 +754,16 @@ class game_screen(tk.Frame):
             newgame.p1.money += newgame.pot
 
 
-            infile = open('scores.txt','r')
-            newScore = '4. {} - £{}\n'.format(newgame.p1.name,newgame.pot)
+            infile = open('scores.txt','r', newline = "")
+            newScore = '4. {} - {}\n'.format(newgame.p1.name,newgame.pot)
             arr = []
             arr.append(newScore[:-1].split())
             for line in infile:
                 arr.append(line[:-1].split())
             infile.close()
-            outfile = open('scores.txt','w')
+            outfile = open('scores.txt','w', newline = "")
 
-            arr.sort(key = lambda x: int(x[3][1:]),reverse=True)            
+            arr.sort(key = lambda x: int(x[3]),reverse=True)            
             for i in range(3):
                 outfile.write('{}. {} - {}\n'.format(i+1,arr[i][1],arr[i][3]))
 
@@ -778,16 +776,16 @@ class game_screen(tk.Frame):
             self.win1_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
             newgame.p1.money += newgame.pot
 
-            infile = open('scores.txt','r')
-            newScore = '4. {} - £{}\n'.format(newgame.p1.name,newgame.pot)
+            infile = open('scores.txt','r', newline = "")
+            newScore = '4. {} - {}\n'.format(newgame.p1.name,newgame.pot)
             arr = []
             arr.append(newScore[:-1].split())
             for line in infile:
                 arr.append(line[:-1].split())
             infile.close()
-            outfile = open('scores.txt','w')
+            outfile = open('scores.txt','w', newline = "")
 
-            arr.sort(key = lambda x: int(x[3][1:]),reverse=True)            
+            arr.sort(key = lambda x: int(x[3]),reverse=True)            
             for i in range(3):
                 outfile.write('{}. {} - {}\n'.format(i+1,arr[i][1],arr[i][3]))
 
@@ -807,16 +805,16 @@ class game_screen(tk.Frame):
             self.win2_label.grid(column = 3, row = 0, columnspan = 2, sticky = "nsew")
             newgame.p2.money += newgame.pot
 
-            infile = open('scores.txt','r')
-            newScore = '4. {} - £{}\n'.format(newgame.p2.name,newgame.pot)
+            infile = open('scores.txt','r', newline = "")
+            newScore = '4. {} - {}\n'.format(newgame.p2.name,newgame.pot)
             arr = []
             arr.append(newScore[:-1].split())
             for line in infile:
                 arr.append(line[:-1].split())
             infile.close()
-            outfile = open('scores.txt','w')
+            outfile = open('scores.txt','w', newline = "")
 
-            arr.sort(key = lambda x: int(x[3][1:]),reverse=True)            
+            arr.sort(key = lambda x: int(x[3]),reverse=True)            
             for i in range(3):
                 outfile.write('{}. {} - {}\n'.format(i+1,arr[i][1],arr[i][3]))
 
